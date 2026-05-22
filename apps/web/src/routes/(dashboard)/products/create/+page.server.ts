@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const [categoriesData, unitsData, suppliersData] = await Promise.all([
     serverFetch<ApiResponse<PaginatedResponse<CategoryDto>>>('/categories?limit=100', locals.accessToken),
     serverFetch<ApiResponse<PaginatedResponse<UnitDto>>>('/units?limit=100', locals.accessToken),
-    serverFetch<ApiResponse<PaginatedResponse<SupplierDto>>>('/suppliers?limit=100', locals.accessToken),
+    serverFetch<ApiResponse<PaginatedResponse<SupplierDto>>>('/suppliers?limit=100&isActive=true', locals.accessToken),
   ])
 
   return {

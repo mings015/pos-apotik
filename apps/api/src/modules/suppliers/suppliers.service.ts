@@ -9,16 +9,16 @@ export class SuppliersService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: PaginationDto) {
-    const { page = 1, limit = 10, search } = query
+    const { page = 1, limit = 10, search, isActive } = query
     const skip = (page - 1) * limit
-    const where = search
-      ? {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { phone: { contains: search, mode: 'insensitive' as const } },
-          ],
-        }
-      : {}
+    const where: Record<string, unknown> = {}
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+    if (isActive !== undefined) where.isActive = isActive
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.supplier.findMany({ where, skip, take: limit, orderBy: { name: 'asc' } }),

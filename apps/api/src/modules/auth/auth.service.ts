@@ -30,6 +30,10 @@ export class AuthService {
       throw new UnauthorizedException('Email atau password salah')
     }
 
+    if (!user.isActive) {
+      throw new UnauthorizedException('Akun Anda telah dinonaktifkan')
+    }
+
     const payload = { sub: user.id, email: user.email }
     const accessToken = this.jwt.sign(payload)
     const { password: _password, ...userWithoutPassword } = user

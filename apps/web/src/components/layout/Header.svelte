@@ -1,10 +1,13 @@
 <script lang="ts">
   import { enhance } from '$app/forms'
   import { currentUser } from '$lib/stores/auth'
+  import ConfirmDialog from '$components/ui/ConfirmDialog.svelte'
 
   export let onToggleSidebar: () => void
 
   let dropdownOpen = false
+  let showLogoutConfirm = false
+  let logoutForm: HTMLFormElement
 
   function toggleDropdown() {
     dropdownOpen = !dropdownOpen
@@ -59,19 +62,28 @@
           <p class="text-xs text-gray-500">{user?.email}</p>
         </div>
 
-        <form method="POST" action="/logout" use:enhance>
-          <button
-            type="submit"
-            class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Logout
-          </button>
-        </form>
+        <button
+          type="button"
+          on:click={() => { dropdownOpen = false; showLogoutConfirm = true }}
+          class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Logout
+        </button>
       </div>
     {/if}
   </div>
 </header>
+
+<form method="POST" action="/logout" use:enhance bind:this={logoutForm} class="hidden"></form>
+
+<ConfirmDialog
+  bind:open={showLogoutConfirm}
+  title="Logout"
+  message="Apakah Anda yakin ingin keluar dari aplikasi?"
+  confirmLabel="Ya, Logout"
+  on:confirm={() => logoutForm.requestSubmit()}
+/>

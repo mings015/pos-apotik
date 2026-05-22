@@ -25,7 +25,7 @@
 <div class="space-y-6">
   <PageHeader title="Role" description="Daftar peran pengguna dalam sistem" />
 
-  <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+  <div class="bg-white rounded-xl border border-gray-200 overflow-x-auto">
     <table class="w-full text-sm">
       <thead class="bg-gray-50 border-b border-gray-200">
         <tr>

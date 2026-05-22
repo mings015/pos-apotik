@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     serverFetch<ApiResponse<ProductDto>>(`/products/${params.id}`, locals.accessToken),
     serverFetch<ApiResponse<PaginatedResponse<CategoryDto>>>('/categories?limit=100', locals.accessToken),
     serverFetch<ApiResponse<PaginatedResponse<UnitDto>>>('/units?limit=100', locals.accessToken),
-    serverFetch<ApiResponse<PaginatedResponse<SupplierDto>>>('/suppliers?limit=100', locals.accessToken),
+    serverFetch<ApiResponse<PaginatedResponse<SupplierDto>>>('/suppliers?limit=100&isActive=true', locals.accessToken),
   ])
 
   if (!productData.success || !productData.data) throw error(404, 'Produk tidak ditemukan')

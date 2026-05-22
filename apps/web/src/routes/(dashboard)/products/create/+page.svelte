@@ -17,14 +17,9 @@
 <svelte:head><title>Tambah Produk — PharmaPOS</title></svelte:head>
 
 <div class="space-y-6">
-  <PageHeader title="Tambah Produk" description="Tambah produk baru ke katalog">
-    <a href="/products"
-      class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-      Kembali
-    </a>
-  </PageHeader>
+  <PageHeader title="Tambah Produk" description="Tambah produk baru ke katalog" />
 
-  <div class="bg-white rounded-xl border border-gray-200 p-6 max-w-2xl">
+  <div class="bg-white rounded-xl border border-gray-200 p-6 max-w-2xl mx-auto">
     <form method="POST"
       use:enhance={() => { formLoading = true; return async ({ update }) => { await update(); formLoading = false } }}>
       <div class="grid grid-cols-2 gap-4">

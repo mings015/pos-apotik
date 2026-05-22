@@ -13,7 +13,7 @@
 <Toast />
 
 <div class="flex h-screen bg-gray-50 overflow-hidden">
-  <Sidebar {collapsed} />
+  <Sidebar bind:collapsed />
 
   <div class="flex flex-col flex-1 min-w-0">
     <Header onToggleSidebar={toggleSidebar} />

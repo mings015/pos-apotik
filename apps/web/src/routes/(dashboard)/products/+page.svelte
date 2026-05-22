@@ -8,12 +8,18 @@
   import Badge from '$components/ui/Badge.svelte'
   import { toast } from '$stores/toast'
   import type { PageData } from './$types'
+  import type { ProductDto } from '@pharmapos/types'
 
   export let data: PageData
 
   let deleteId = ''
   let showConfirm = false
   let deleteLoading = false
+
+  let selectedProduct: ProductDto | null = null
+  let showDetail = false
+
+  function openDetail(item: ProductDto) { selectedProduct = item; showDetail = true }
 
   let search = data.filters.search
   let categoryId = data.filters.categoryId
@@ -73,7 +79,7 @@
     <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg transition">Cari</button>
   </form>
 
-  <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+  <div class="bg-white rounded-xl border border-gray-200 overflow-x-auto">
     <table class="w-full text-sm">
       <thead class="bg-gray-50 border-b border-gray-200">
         <tr>
@@ -103,6 +109,8 @@
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center justify-end gap-2">
+                <button on:click={() => openDetail(item)}
+                  class="px-3 py-1.5 text-xs font-medium text-primary-600 border border-primary-200 rounded-lg hover:bg-primary-50 transition">Detail</button>
                 <a href="/products/{item.id}/edit"
                   class="px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Edit</a>
                 <button on:click={() => { deleteId = item.id; showConfirm = true }}
@@ -122,6 +130,89 @@
       on:change={(e) => { window.location.href = buildQuery(e.detail) }} />
   {/if}
 </div>
+
+{#if showDetail && selectedProduct}
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <button class="absolute inset-0 bg-black/40" on:click={() => showDetail = false} aria-label="Tutup"></button>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div>
+          <h3 class="text-base font-semibold text-gray-900">{selectedProduct.name}</h3>
+          <p class="text-xs text-gray-500 font-mono mt-0.5">{selectedProduct.code}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <Badge variant={selectedProduct.isActive ? 'success' : 'danger'}>
+            {selectedProduct.isActive ? 'Aktif' : 'Nonaktif'}
+          </Badge>
+          <button on:click={() => showDetail = false} class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition" aria-label="Tutup">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-4 space-y-4">
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Barcode</p>
+            <p class="font-medium text-gray-900">{selectedProduct.barcode ?? '—'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Kategori</p>
+            <p class="font-medium text-gray-900">{selectedProduct.category?.name ?? '—'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Satuan</p>
+            <p class="font-medium text-gray-900">{selectedProduct.unit ? `${selectedProduct.unit.name} (${selectedProduct.unit.symbol})` : '—'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Supplier</p>
+            <p class="font-medium text-gray-900">{selectedProduct.supplier?.name ?? '—'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Harga Beli</p>
+            <p class="font-medium text-gray-900">{formatPrice(selectedProduct.purchasePrice)}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Harga Jual</p>
+            <p class="font-medium text-gray-900">{formatPrice(selectedProduct.sellingPrice)}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Stok</p>
+            <p class="font-semibold" class:text-red-600={selectedProduct.stock <= selectedProduct.minimumStock}>
+              {selectedProduct.stock}
+              {#if selectedProduct.stock <= selectedProduct.minimumStock}
+                <span class="text-xs font-normal">(di bawah minimum)</span>
+              {/if}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-0.5">Stok Minimum</p>
+            <p class="font-medium text-gray-900">{selectedProduct.minimumStock}</p>
+          </div>
+        </div>
+
+        {#if selectedProduct.description}
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Deskripsi</p>
+            <p class="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.description}</p>
+          </div>
+        {/if}
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-100">
+        <button on:click={() => showDetail = false}
+          class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Tutup</button>
+        <a href="/products/{selectedProduct.id}/edit"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition">Edit Produk</a>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <ConfirmDialog bind:open={showConfirm} title="Hapus Produk" message="Apakah Anda yakin ingin menghapus produk ini?"
   confirmLabel="Ya, Hapus" loading={deleteLoading}
