@@ -102,6 +102,45 @@ export interface ProductDto {
   updatedAt: Date
 }
 
+// ─── Inventory / Phase 3 ─────────────────────────────────────────────────────
+
+export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT' | 'OPNAME' | 'EXPIRED' | 'RETURN'
+
+export interface ProductBatchDto {
+  id: string
+  productId: string
+  batchNumber: string
+  expiredDate: Date
+  quantity: number
+  product?: ProductDto
+  createdAt: Date
+}
+
+export interface StockMovementDto {
+  id: string
+  productId: string
+  batchId: string | null
+  movementType: MovementType
+  quantity: number
+  beforeStock: number
+  afterStock: number
+  referenceType: string | null
+  referenceId: string | null
+  notes: string | null
+  createdById: string
+  product?: Pick<ProductDto, 'id' | 'code' | 'name'>
+  batch?: Pick<ProductBatchDto, 'id' | 'batchNumber'> | null
+  createdBy?: Pick<UserDto, 'id' | 'name'>
+  createdAt: Date
+}
+
+export interface InventoryOverviewDto {
+  totalProducts: number
+  lowStockCount: number
+  expiredCount: number
+  nearExpiredCount: number
+}
+
 // ─── Setting ─────────────────────────────────────────────────────────────────
 
 export interface SettingDto {

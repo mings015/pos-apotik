@@ -1,5 +1,4 @@
-import { IsOptional, IsString, IsBoolean } from 'class-validator'
-import { Transform } from 'class-transformer'
+import { IsOptional, IsString } from 'class-validator'
 import { PaginationDto } from '../../../common/dto/pagination.dto'
 
 export class QueryProductDto extends PaginationDto {
@@ -10,9 +9,4 @@ export class QueryProductDto extends PaginationDto {
   @IsOptional()
   @IsString()
   supplierId?: string
-
-  @IsOptional()
-  @Transform(({ value }) => value === 'true')
-  @IsBoolean()
-  isActive?: boolean
 }

@@ -11,6 +11,9 @@ import { UnitsModule } from './modules/units/units.module'
 import { SuppliersModule } from './modules/suppliers/suppliers.module'
 import { ProductsModule } from './modules/products/products.module'
 import { SettingsModule } from './modules/settings/settings.module'
+import { InventoryModule } from './modules/inventory/inventory.module'
+import { StockMovementsModule } from './modules/stock-movements/stock-movements.module'
+import { BatchesModule } from './modules/batches/batches.module'
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { SettingsModule } from './modules/settings/settings.module'
     SuppliersModule,
     ProductsModule,
     SettingsModule,
+    InventoryModule,
+    StockMovementsModule,
+    BatchesModule,
   ],
 })
 export class AppModule {}

@@ -1,11 +1,19 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  OPNAME
+  EXPIRED
+  RETURN
 }
 
 model Role {
@@ -19,15 +27,16 @@ model Role {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  roleId    String   @map("role_id")
-  isActive  Boolean  @default(true) @map("is_active")
-  role      Role     @relation(fields: [roleId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String          @id @default(uuid())
+  name           String
+  email          String          @unique
+  password       String
+  roleId         String          @map("role_id")
+  isActive       Boolean         @default(true) @map("is_active")
+  role           Role            @relation(fields: [roleId], references: [id])
+  stockMovements StockMovement[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -69,27 +78,62 @@ model Supplier {
 }
 
 model Product {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  barcode       String?  @unique
-  name          String
-  categoryId    String   @map("category_id")
-  supplierId    String?  @map("supplier_id")
-  unitId        String   @map("unit_id")
-  purchasePrice Decimal  @map("purchase_price") @db.Decimal(15, 2)
-  sellingPrice  Decimal  @map("selling_price") @db.Decimal(15, 2)
-  stock         Int      @default(0)
-  minimumStock  Int      @default(0) @map("minimum_stock")
-  productImage  String?  @map("product_image")
-  description   String?
-  isActive      Boolean  @default(true) @map("is_active")
-  category      Category @relation(fields: [categoryId], references: [id])
-  supplier      Supplier? @relation(fields: [supplierId], references: [id])
-  unit          Unit     @relation(fields: [unitId], references: [id])
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id             String          @id @default(uuid())
+  code           String          @unique
+  barcode        String?         @unique
+  name           String
+  categoryId     String          @map("category_id")
+  supplierId     String?         @map("supplier_id")
+  unitId         String          @map("unit_id")
+  purchasePrice  Decimal         @map("purchase_price") @db.Decimal(15, 2)
+  sellingPrice   Decimal         @map("selling_price") @db.Decimal(15, 2)
+  stock          Int             @default(0)
+  minimumStock   Int             @default(0) @map("minimum_stock")
+  productImage   String?         @map("product_image")
+  description    String?
+  isActive       Boolean         @default(true) @map("is_active")
+  category       Category        @relation(fields: [categoryId], references: [id])
+  supplier       Supplier?       @relation(fields: [supplierId], references: [id])
+  unit           Unit            @relation(fields: [unitId], references: [id])
+  batches        ProductBatch[]
+  stockMovements StockMovement[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
 
   @@map("products")
+}
+
+model ProductBatch {
+  id             String          @id @default(uuid())
+  productId      String          @map("product_id")
+  batchNumber    String          @map("batch_number")
+  expiredDate    DateTime        @map("expired_date")
+  quantity       Int
+  product        Product         @relation(fields: [productId], references: [id])
+  stockMovements StockMovement[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  @@map("product_batches")
+}
+
+model StockMovement {
+  id            String       @id @default(uuid())
+  productId     String       @map("product_id")
+  batchId       String?      @map("batch_id")
+  movementType  MovementType @map("movement_type")
+  quantity      Int
+  beforeStock   Int          @map("before_stock")
+  afterStock    Int          @map("after_stock")
+  referenceType String?      @map("reference_type")
+  referenceId   String?      @map("reference_id")
+  notes         String?
+  createdById   String       @map("created_by")
+  product       Product      @relation(fields: [productId], references: [id])
+  batch         ProductBatch? @relation(fields: [batchId], references: [id])
+  createdBy     User         @relation(fields: [createdById], references: [id])
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@map("stock_movements")
 }
 
 model Setting {
