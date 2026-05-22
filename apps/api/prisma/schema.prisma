@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -23,9 +24,83 @@ model User {
   email     String   @unique
   password  String
   roleId    String   @map("role_id")
+  isActive  Boolean  @default(true) @map("is_active")
   role      Role     @relation(fields: [roleId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Unit {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  symbol    String
+  products  Product[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("units")
+}
+
+model Supplier {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  isActive  Boolean   @default(true) @map("is_active")
+  products  Product[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("suppliers")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  barcode       String?  @unique
+  name          String
+  categoryId    String   @map("category_id")
+  supplierId    String?  @map("supplier_id")
+  unitId        String   @map("unit_id")
+  purchasePrice Decimal  @map("purchase_price") @db.Decimal(15, 2)
+  sellingPrice  Decimal  @map("selling_price") @db.Decimal(15, 2)
+  stock         Int      @default(0)
+  minimumStock  Int      @default(0) @map("minimum_stock")
+  productImage  String?  @map("product_image")
+  description   String?
+  isActive      Boolean  @default(true) @map("is_active")
+  category      Category @relation(fields: [categoryId], references: [id])
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+  unit          Unit     @relation(fields: [unitId], references: [id])
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model Setting {
+  id            String   @id @default(uuid())
+  storeName     String   @map("store_name")
+  storeLogo     String?  @map("store_logo")
+  taxPercentage Decimal  @default(11) @map("tax_percentage") @db.Decimal(5, 2)
+  printerName   String?  @map("printer_name")
+  autoPrint     Boolean  @default(false) @map("auto_print")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
 }

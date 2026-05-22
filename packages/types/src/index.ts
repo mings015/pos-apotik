@@ -1,3 +1,5 @@
+// ─── Auth & User ─────────────────────────────────────────────────────────────
+
 export type RoleName = 'SUPER_ADMIN' | 'ADMIN' | 'CASHIER' | 'WAREHOUSE'
 
 export interface RoleDto {
@@ -12,6 +14,7 @@ export interface UserDto {
   name: string
   email: string
   roleId: string
+  isActive: boolean
   role?: RoleDto
   createdAt: Date
   updatedAt: Date
@@ -24,6 +27,14 @@ export interface ApiResponse<T = unknown> {
   errors?: Array<{ field: string; message: string }>
 }
 
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
 export interface AuthResponse {
   accessToken: string
   user: UserDto
@@ -34,11 +45,71 @@ export interface LoginRequest {
   password: string
 }
 
-export interface ForgotPasswordRequest {
-  email: string
+// ─── Category ────────────────────────────────────────────────────────────────
+
+export interface CategoryDto {
+  id: string
+  name: string
+  description: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
-export interface ResetPasswordRequest {
-  token: string
-  password: string
+// ─── Unit ────────────────────────────────────────────────────────────────────
+
+export interface UnitDto {
+  id: string
+  name: string
+  symbol: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ─── Supplier ────────────────────────────────────────────────────────────────
+
+export interface SupplierDto {
+  id: string
+  name: string
+  phone: string | null
+  email: string | null
+  address: string | null
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ─── Product ─────────────────────────────────────────────────────────────────
+
+export interface ProductDto {
+  id: string
+  code: string
+  barcode: string | null
+  name: string
+  categoryId: string
+  supplierId: string | null
+  unitId: string
+  purchasePrice: number
+  sellingPrice: number
+  stock: number
+  minimumStock: number
+  productImage: string | null
+  description: string | null
+  isActive: boolean
+  category?: CategoryDto
+  supplier?: SupplierDto | null
+  unit?: UnitDto
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ─── Setting ─────────────────────────────────────────────────────────────────
+
+export interface SettingDto {
+  id: string
+  storeName: string
+  storeLogo: string | null
+  taxPercentage: number
+  printerName: string | null
+  autoPrint: boolean
+  updatedAt: Date
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Sidebar from '$components/layout/Sidebar.svelte'
   import Header from '$components/layout/Header.svelte'
+  import Toast from '$components/ui/Toast.svelte'
 
   let collapsed = false
 
@@ -8,6 +9,8 @@
     collapsed = !collapsed
   }
 </script>
+
+<Toast />
 
 <div class="flex h-screen bg-gray-50 overflow-hidden">
   <Sidebar {collapsed} />

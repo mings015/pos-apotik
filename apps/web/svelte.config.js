@@ -10,6 +10,7 @@ export default {
       $components: 'src/components',
       $stores: 'src/lib/stores',
       $api: 'src/lib/api',
+      '@pharmapos/types': '../../packages/types/src/index.ts',
     },
   },
 }

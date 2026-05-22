@@ -2,9 +2,6 @@
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "noImplicitAny": true,
-    "paths": {
-      "@pharmapos/types": ["../../packages/types/src/index.ts"]
-    }
+    "noImplicitAny": true
   }
 }
