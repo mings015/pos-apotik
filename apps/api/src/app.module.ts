@@ -14,6 +14,7 @@ import { SettingsModule } from './modules/settings/settings.module'
 import { InventoryModule } from './modules/inventory/inventory.module'
 import { StockMovementsModule } from './modules/stock-movements/stock-movements.module'
 import { BatchesModule } from './modules/batches/batches.module'
+import { SalesModule } from './modules/sales/sales.module'
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { BatchesModule } from './modules/batches/batches.module'
     InventoryModule,
     StockMovementsModule,
     BatchesModule,
+    SalesModule,
   ],
 })
 export class AppModule {}

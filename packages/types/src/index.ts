@@ -152,3 +152,37 @@ export interface SettingDto {
   autoPrint: boolean
   updatedAt: Date
 }
+
+// ─── Sales / Phase 4 ─────────────────────────────────────────────────────────
+
+export type SaleStatus = 'HOLD' | 'COMPLETED' | 'CANCELLED'
+
+export interface SaleItemDto {
+  id: string
+  saleId: string
+  productId: string
+  quantity: number
+  price: number
+  discount: number
+  subtotal: number
+  product?: Pick<ProductDto, 'id' | 'name' | 'code'> & { unit?: Pick<UnitDto, 'name' | 'symbol'> }
+}
+
+export interface SaleDto {
+  id: string
+  invoiceNumber: string
+  cashierId: string
+  subtotal: number
+  discount: number
+  tax: number
+  total: number
+  paymentMethod: string | null
+  amountPaid: number | null
+  change: number | null
+  status: SaleStatus
+  notes: string | null
+  cashier?: Pick<UserDto, 'id' | 'name'>
+  items?: SaleItemDto[]
+  createdAt: Date
+  updatedAt: Date
+}
