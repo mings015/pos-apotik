@@ -12,8 +12,10 @@
   let selectedProductId = ''
   let physicalCount = 0
 
-  $: if (form?.success) { toast.success(form.message ?? 'Berhasil'); goto('/inventory') }
-  $: if (form?.error) toast.error(form.error)
+  type FormResult = { success?: boolean; message?: string; error?: string } | null
+  $: f = form as FormResult
+  $: if (f?.success) { toast.success(f.message ?? 'Berhasil'); goto('/inventory') }
+  $: if (f?.error) toast.error(f.error ?? 'Terjadi kesalahan')
 
   $: selectedProduct = data.products.find(p => p.id === selectedProductId)
   $: difference = selectedProduct ? physicalCount - selectedProduct.stock : 0

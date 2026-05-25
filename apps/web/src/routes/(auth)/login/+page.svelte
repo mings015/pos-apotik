@@ -3,6 +3,8 @@
   import type { ActionData } from './$types'
 
   export let form: ActionData
+  type F = { error?: string } | null
+  $: f = form as F
   let loading = false
 </script>
 
@@ -28,9 +30,9 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
       <h2 class="text-xl font-semibold text-gray-900 mb-6">Masuk ke akun Anda</h2>
 
-      {#if form?.error}
+      {#if f?.error}
         <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {form.error}
+          {f.error}
         </div>
       {/if}
 

@@ -19,8 +19,10 @@
   let formLoading = false
   let deleteLoading = false
 
-  $: if (form?.success) { toast.success(form.message ?? 'Berhasil'); showForm = false; editItem = null }
-  $: if (form?.error) toast.error(form.error)
+  type FormResult = { success?: boolean; message?: string; error?: string } | null
+  $: f = form as FormResult
+  $: if (f?.success) { toast.success(f.message ?? 'Berhasil'); showForm = false; editItem = null }
+  $: if (f?.error) toast.error(f.error ?? 'Terjadi kesalahan')
 
   function openCreate() { editItem = null; showForm = true }
   function openEdit(item: UnitDto) { editItem = item; showForm = true }

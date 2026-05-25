@@ -2,6 +2,18 @@ import type { PageServerLoad } from './$types'
 import type { ApiResponse, PaginatedResponse } from '@pharmapos/types'
 import { serverFetch } from '$api/server'
 
+export interface StockItem {
+  id: string
+  name: string
+  code: string
+  stock: number
+  minimumStock: number
+  isActive: boolean
+  unit?: { name: string; symbol: string }
+  category?: { name: string }
+  batches?: { id: string; batchNumber: string; expiredDate: string; quantity: number }[]
+}
+
 export const load: PageServerLoad = async ({ locals, url }) => {
   const page = url.searchParams.get('page') ?? '1'
   const search = url.searchParams.get('search') ?? ''
@@ -15,7 +27,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     serverFetch<ApiResponse<{ totalProducts: number; lowStockCount: number; expiredCount: number; nearExpiredCount: number }>>(
       '/inventory/overview', locals.accessToken
     ),
-    serverFetch<ApiResponse<PaginatedResponse<Record<string, unknown>>>>(
+    serverFetch<ApiResponse<PaginatedResponse<StockItem>>>(
       `/inventory?${params}`, locals.accessToken
     ),
   ])

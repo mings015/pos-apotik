@@ -3,6 +3,8 @@
   import type { ActionData } from './$types'
 
   export let form: ActionData
+  type F = { success?: boolean; token?: string; error?: string } | null
+  $: f = form as F
   let loading = false
 </script>
 
@@ -18,13 +20,13 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-      {#if form?.success}
+      {#if f?.success}
         <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
           <p class="text-green-700 text-sm font-medium">Token reset berhasil dibuat.</p>
-          {#if form.token}
-            <p class="text-green-600 text-xs mt-1 break-all">Token: {form.token}</p>
+          {#if f.token}
+            <p class="text-green-600 text-xs mt-1 break-all">Token: {f.token}</p>
             <p class="text-green-600 text-xs mt-1">
-              <a href="/reset-password?token={form.token}" class="underline font-medium">
+              <a href="/reset-password?token={f.token}" class="underline font-medium">
                 Klik di sini untuk reset password
               </a>
             </p>
@@ -32,9 +34,9 @@
         </div>
       {/if}
 
-      {#if form?.error}
+      {#if f?.error}
         <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {form.error}
+          {f.error}
         </div>
       {/if}
 
