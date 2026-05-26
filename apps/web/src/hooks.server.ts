@@ -8,6 +8,8 @@ const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 const routeRoles: Array<{ prefix: string; roles: string[] }> = [
   { prefix: '/sales', roles: ['SUPER_ADMIN', 'ADMIN', 'CASHIER'] },
   { prefix: '/purchases', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
+  { prefix: '/supplier-invoices', roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { prefix: '/purchase-returns', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
   { prefix: '/reports', roles: ['SUPER_ADMIN', 'ADMIN'] },
   { prefix: '/inventory', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
   { prefix: '/batches', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },

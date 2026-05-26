@@ -21,20 +21,28 @@
   // Auto-close sidebar on navigation when mobile
   $: if ($page && isMobile) collapsed = true
 
-  const menuItems = [
+  type MenuItem =
+    | { type?: undefined; href: string; label: string; icon: string; roles?: string[] }
+    | { type: 'category'; label: string }
+
+  const menuItems: MenuItem[] = [
     { href: '/dashboard', label: 'Dashboard', icon: 'grid' },
+    { type: 'category', label: 'Transaksi' },
     { href: '/sales', label: 'Penjualan', icon: 'shopping-cart', roles: ['SUPER_ADMIN', 'ADMIN', 'CASHIER'] },
     { href: '/purchases', label: 'Pembelian', icon: 'truck', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
+    { href: '/supplier-invoices', label: 'Invoice Supplier', icon: 'file-text', roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { href: '/purchase-returns', label: 'Retur Pembelian', icon: 'corner-up-left', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
     { href: '/reports', label: 'Laporan', icon: 'bar-chart', roles: ['SUPER_ADMIN', 'ADMIN'] },
-    { type: 'divider' as const },
+    { type: 'category', label: 'Inventaris' },
     { href: '/products', label: 'Produk', icon: 'package' },
-    { href: '/inventory', label: 'Inventory', icon: 'archive', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
+    { href: '/inventory', label: 'Stok', icon: 'archive', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
     { href: '/batches', label: 'Batch', icon: 'layers', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
     { href: '/expired', label: 'Expired', icon: 'alert-triangle', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
+    { type: 'category', label: 'Master Data' },
     { href: '/categories', label: 'Kategori', icon: 'tag', roles: ['SUPER_ADMIN', 'ADMIN'] },
     { href: '/suppliers', label: 'Supplier', icon: 'building', roles: ['SUPER_ADMIN', 'ADMIN'] },
     { href: '/units', label: 'Satuan', icon: 'ruler', roles: ['SUPER_ADMIN', 'ADMIN'] },
-    { type: 'divider' as const },
+    { type: 'category', label: 'Manajemen' },
     { href: '/users', label: 'Pengguna', icon: 'users', roles: ['SUPER_ADMIN', 'ADMIN'] },
     { href: '/roles', label: 'Role', icon: 'shield', roles: ['SUPER_ADMIN'] },
     { href: '/settings', label: 'Pengaturan', icon: 'settings', roles: ['SUPER_ADMIN'] },
@@ -42,7 +50,7 @@
 
   $: userRole = $currentUser?.role?.name
   $: filteredMenu = menuItems.filter(
-    (item) => item.type === 'divider' || !item.roles || (userRole && item.roles.includes(userRole))
+    (item) => item.type === 'category' || !item.roles || (userRole && item.roles.includes(userRole))
   )
 
   const icons: Record<string, string> = {
@@ -60,6 +68,8 @@
     building: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
     ruler: 'M3 7a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V7zM3 13a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zM14 13a1 1 0 011-1h2a1 1 0 011 1v1h1a1 1 0 010 2h-1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-4z',
     settings: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+    'file-text': 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8',
+    'corner-up-left': 'M9 14L4 9l5-5M4 9h10.5a3.5 3.5 0 010 7H11',
   }
 </script>
 
@@ -99,11 +109,13 @@
 
   <nav class="flex-1 overflow-y-auto py-3 px-2">
     {#each filteredMenu as item}
-      {#if item.type === 'divider'}
+      {#if item.type === 'category'}
         {#if !collapsed || isMobile}
-          <div class="my-2 border-t border-gray-100"></div>
+          <div class="px-3 pt-4 pb-1">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{item.label}</p>
+          </div>
         {:else}
-          <div class="my-2"></div>
+          <div class="my-3 border-t border-gray-100 mx-1"></div>
         {/if}
       {:else}
         {@const active =

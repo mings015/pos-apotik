@@ -186,3 +186,111 @@ export interface SaleDto {
   createdAt: Date
   updatedAt: Date
 }
+
+// ─── Purchase Management / Phase 5 ───────────────────────────────────────────
+
+export type PurchaseOrderStatus = 'DRAFT' | 'PENDING' | 'APPROVED' | 'RECEIVED' | 'CANCELLED'
+export type InvoicePaymentStatus = 'UNPAID' | 'PARTIAL' | 'PAID'
+
+export interface PurchaseOrderItemDto {
+  id: string
+  purchaseOrderId: string
+  productId: string
+  quantity: number
+  purchasePrice: number
+  subtotal: number
+  product?: Pick<ProductDto, 'id' | 'name' | 'code'> & { unit?: Pick<UnitDto, 'symbol'> }
+}
+
+export interface PurchaseOrderDto {
+  id: string
+  poNumber: string
+  supplierId: string
+  subtotal: number
+  tax: number
+  discount: number
+  total: number
+  status: PurchaseOrderStatus
+  notes: string | null
+  createdById: string
+  supplier?: Pick<SupplierDto, 'id' | 'name'>
+  createdBy?: Pick<UserDto, 'id' | 'name'>
+  items?: PurchaseOrderItemDto[]
+  invoice?: Pick<SupplierInvoiceDto, 'id' | 'invoiceNumber' | 'paymentStatus' | 'totalAmount' | 'paidAmount'>
+  _count?: { items: number }
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface GoodsReceivingItemDto {
+  id: string
+  goodsReceivingId: string
+  productId: string
+  batchId: string
+  quantity: number
+  purchasePrice: number
+  product?: Pick<ProductDto, 'id' | 'name' | 'code'>
+  batch?: Pick<ProductBatchDto, 'id' | 'batchNumber' | 'expiredDate'>
+}
+
+export interface GoodsReceivingDto {
+  id: string
+  purchaseOrderId: string
+  receivedById: string
+  notes: string | null
+  items?: GoodsReceivingItemDto[]
+  receivedBy?: Pick<UserDto, 'id' | 'name'>
+  createdAt: Date
+}
+
+export interface SupplierPaymentDto {
+  id: string
+  supplierInvoiceId: string
+  amount: number
+  paymentMethod: string
+  paymentDate: Date
+  notes: string | null
+  createdById: string
+  createdBy?: Pick<UserDto, 'id' | 'name'>
+  createdAt: Date
+}
+
+export interface SupplierInvoiceDto {
+  id: string
+  purchaseOrderId: string
+  invoiceNumber: string
+  totalAmount: number
+  paidAmount: number
+  dueDate: Date | null
+  paymentStatus: InvoicePaymentStatus
+  notes: string | null
+  purchaseOrder?: Pick<PurchaseOrderDto, 'id' | 'poNumber'> & { supplier?: Pick<SupplierDto, 'id' | 'name'> }
+  payments?: SupplierPaymentDto[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface PurchaseReturnItemDto {
+  id: string
+  purchaseReturnId: string
+  productId: string
+  batchId: string
+  quantity: number
+  product?: Pick<ProductDto, 'id' | 'name' | 'code'>
+  batch?: Pick<ProductBatchDto, 'id' | 'batchNumber'>
+}
+
+export interface PurchaseReturnDto {
+  id: string
+  returnNumber: string
+  supplierInvoiceId: string
+  reason: string
+  notes: string | null
+  createdById: string
+  items?: PurchaseReturnItemDto[]
+  supplierInvoice?: Pick<SupplierInvoiceDto, 'id' | 'invoiceNumber'> & {
+    purchaseOrder?: Pick<PurchaseOrderDto, 'id' | 'poNumber'> & { supplier?: Pick<SupplierDto, 'id' | 'name'> }
+  }
+  createdBy?: Pick<UserDto, 'id' | 'name'>
+  createdAt: Date
+}

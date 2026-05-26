@@ -15,6 +15,10 @@ import { InventoryModule } from './modules/inventory/inventory.module'
 import { StockMovementsModule } from './modules/stock-movements/stock-movements.module'
 import { BatchesModule } from './modules/batches/batches.module'
 import { SalesModule } from './modules/sales/sales.module'
+import { PurchasesModule } from './modules/purchases/purchases.module'
+import { GoodsReceivingModule } from './modules/goods-receiving/goods-receiving.module'
+import { SupplierInvoicesModule } from './modules/supplier-invoices/supplier-invoices.module'
+import { PurchaseReturnsModule } from './modules/purchase-returns/purchase-returns.module'
 
 @Module({
   imports: [
@@ -36,6 +40,10 @@ import { SalesModule } from './modules/sales/sales.module'
     StockMovementsModule,
     BatchesModule,
     SalesModule,
+    PurchasesModule,
+    GoodsReceivingModule,
+    SupplierInvoicesModule,
+    PurchaseReturnsModule,
   ],
 })
 export class AppModule {}
