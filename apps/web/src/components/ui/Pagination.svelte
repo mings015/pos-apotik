@@ -25,6 +25,7 @@
       <button
         disabled={page <= 1}
         on:click={() => dispatch('change', page - 1)}
+        aria-label="Halaman sebelumnya"
         class="px-2 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,6 +50,7 @@
       <button
         disabled={page >= totalPages}
         on:click={() => dispatch('change', page + 1)}
+        aria-label="Halaman berikutnya"
         class="px-2 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

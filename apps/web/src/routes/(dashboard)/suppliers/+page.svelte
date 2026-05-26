@@ -92,7 +92,7 @@
 
 {#if showForm}
   <div class="fixed inset-0 z-50 flex items-center justify-center">
-    <button class="absolute inset-0 bg-black/40" on:click={() => showForm = false} />
+    <button class="absolute inset-0 bg-black/40" aria-label="Tutup" on:click={() => showForm = false}></button>
     <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
       <h3 class="text-base font-semibold text-gray-900 mb-4">{editItem ? 'Edit Supplier' : 'Tambah Supplier'}</h3>
       <form method="POST" action={editItem ? '?/update' : '?/create'}
@@ -100,23 +100,23 @@
         {#if editItem}<input type="hidden" name="id" value={editItem.id} />{/if}
         <div class="space-y-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-            <input name="name" value={editItem?.name ?? ''} required
+            <label for="sup-name" class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
+            <input id="sup-name" name="name" value={editItem?.name ?? ''} required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Telepon</label>
-            <input name="phone" value={editItem?.phone ?? ''}
+            <label for="sup-phone" class="block text-sm font-medium text-gray-700 mb-1">Telepon</label>
+            <input id="sup-phone" name="phone" value={editItem?.phone ?? ''}
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input name="email" type="email" value={editItem?.email ?? ''}
+            <label for="sup-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input id="sup-email" name="email" type="email" value={editItem?.email ?? ''}
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-            <textarea name="address" rows="2"
+            <label for="sup-address" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+            <textarea id="sup-address" name="address" rows="2"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">{editItem?.address ?? ''}</textarea>
           </div>
           {#if editItem}

@@ -104,7 +104,7 @@
 <!-- Form Modal -->
 {#if showForm}
   <div class="fixed inset-0 z-50 flex items-center justify-center">
-    <button class="absolute inset-0 bg-black/40" on:click={() => showForm = false} />
+    <button class="absolute inset-0 bg-black/40" aria-label="Tutup" on:click={() => showForm = false}></button>
     <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
       <h3 class="text-base font-semibold text-gray-900 mb-4">
         {editItem ? 'Edit Kategori' : 'Tambah Kategori'}
@@ -116,13 +116,13 @@
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-            <input name="name" value={editItem?.name ?? ''} required
+            <label for="cat-name" class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
+            <input id="cat-name" name="name" value={editItem?.name ?? ''} required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-            <textarea name="description" rows="2"
+            <label for="cat-desc" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+            <textarea id="cat-desc" name="description" rows="2"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">{editItem?.description ?? ''}</textarea>
           </div>
         </div>

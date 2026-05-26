@@ -7,16 +7,30 @@
 
   export let data: PageData
 
-  let status = data.filters.status
-  let dateFrom = data.filters.dateFrom
-  let dateTo = data.filters.dateTo
+  $: status = data.filters.status
+  $: dateFrom = data.filters.dateFrom
+  $: dateTo = data.filters.dateTo
+  $: search = data.filters.search
 
   function buildQuery(page = 1) {
     const p = new URLSearchParams({ page: String(page) })
     if (status) p.set('status', status)
     if (dateFrom) p.set('dateFrom', dateFrom)
     if (dateTo) p.set('dateTo', dateTo)
+    if (search) p.set('search', search)
     return `?${p}`
+  }
+
+  function applyFilter() {
+    window.location.href = buildQuery(1)
+  }
+
+  function resetFilter() {
+    status = ''
+    dateFrom = ''
+    dateTo = ''
+    search = ''
+    window.location.href = '?'
   }
 
   function formatRp(n: number) {
@@ -38,6 +52,8 @@
     if (s === 'HOLD') return 'Hold'
     return 'Dibatalkan'
   }
+
+  $: hasFilter = !!(status || dateFrom || dateTo || search)
 </script>
 
 <svelte:head><title>Riwayat Penjualan — PharmaPOS</title></svelte:head>
@@ -49,21 +65,103 @@
     </a>
   </PageHeader>
 
-  <form method="GET" class="flex flex-wrap gap-2">
-    <select name="status" bind:value={status}
-      class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-      <option value="">Semua Status</option>
-      <option value="COMPLETED">Selesai</option>
-      <option value="HOLD">Hold</option>
-      <option value="CANCELLED">Dibatalkan</option>
-    </select>
-    <input type="date" name="dateFrom" bind:value={dateFrom}
-      class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-    <input type="date" name="dateTo" bind:value={dateTo}
-      class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-    <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-medium rounded-lg transition">Filter</button>
-  </form>
+  <!-- Filter Bar -->
+  <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+    <!-- Search -->
+    <div class="relative">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        type="text"
+        bind:value={search}
+        placeholder="Cari no. invoice atau nama kasir..."
+        on:keydown={(e) => e.key === 'Enter' && applyFilter()}
+        class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+      />
+    </div>
 
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-2 items-end">
+      <div class="flex flex-col gap-1">
+        <label for="filter-status" class="text-xs text-gray-500 font-medium">Status</label>
+        <select
+          id="filter-status"
+          bind:value={status}
+          class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
+          <option value="">Semua Status</option>
+          <option value="COMPLETED">Selesai</option>
+          <option value="HOLD">Hold</option>
+          <option value="CANCELLED">Dibatalkan</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="filter-date-from" class="text-xs text-gray-500 font-medium">Dari Tanggal</label>
+        <input
+          id="filter-date-from"
+          type="date"
+          bind:value={dateFrom}
+          class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="filter-date-to" class="text-xs text-gray-500 font-medium">Sampai Tanggal</label>
+        <input
+          id="filter-date-to"
+          type="date"
+          bind:value={dateTo}
+          class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          on:click={applyFilter}
+          class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition"
+        >
+          Terapkan
+        </button>
+        {#if hasFilter}
+          <button
+            on:click={resetFilter}
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition"
+          >
+            Reset
+          </button>
+        {/if}
+      </div>
+    </div>
+
+    {#if hasFilter}
+      <div class="flex flex-wrap gap-2 pt-1">
+        {#if search}
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+            Cari: "{search}"
+          </span>
+        {/if}
+        {#if status}
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+            Status: {statusLabel(status)}
+          </span>
+        {/if}
+        {#if dateFrom}
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+            Dari: {dateFrom}
+          </span>
+        {/if}
+        {#if dateTo}
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+            Sampai: {dateTo}
+          </span>
+        {/if}
+      </div>
+    {/if}
+  </div>
+
+  <!-- Table -->
   <div class="bg-white rounded-xl border border-gray-200 overflow-x-auto">
     <table class="w-full text-sm">
       <thead class="bg-gray-50 border-b border-gray-200">
@@ -97,7 +195,7 @@
             </td>
           </tr>
         {:else}
-          <tr><td colspan="8"><EmptyState message="Belum ada transaksi" /></td></tr>
+          <tr><td colspan="8"><EmptyState message={hasFilter ? 'Tidak ada transaksi yang cocok' : 'Belum ada transaksi'} /></td></tr>
         {/each}
       </tbody>
     </table>

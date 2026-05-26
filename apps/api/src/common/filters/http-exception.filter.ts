@@ -15,6 +15,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const message =
       exception instanceof HttpException ? exception.message : 'Internal server error'
 
+    if (!(exception instanceof HttpException)) {
+      console.error('[500 Error]', exception)
+    }
+
     response.status(status).json({ success: false, message })
   }
 }

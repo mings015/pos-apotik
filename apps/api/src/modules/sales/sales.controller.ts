@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common'
 import { SalesService } from './sales.service'
 import { CreateSaleDto } from './dto/create-sale.dto'
 import { CheckoutHoldDto } from './dto/checkout-hold.dto'
 import { QuerySaleDto } from './dto/query-sale.dto'
+import { DeleteSaleDto } from './dto/delete-sale.dto'
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 import { RolesGuard } from '../../common/guards/roles.guard'
 import { Roles } from '../../common/decorators/roles.decorator'
@@ -48,5 +49,12 @@ export class SalesController {
   async cancelHold(@Param('id') id: string) {
     await this.salesService.cancelHold(id)
     return { success: true, message: 'Transaksi berhasil dibatalkan' }
+  }
+
+  @Delete(':id')
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  async deleteSale(@Param('id') id: string, @Body() dto: DeleteSaleDto, @CurrentUser() user: AuthUser) {
+    await this.salesService.deleteSale(id, user.id, dto.password)
+    return { success: true, message: 'Transaksi berhasil dihapus' }
   }
 }

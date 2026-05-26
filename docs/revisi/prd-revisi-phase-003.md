@@ -1,0 +1,5 @@
+- pada saat mengosongkan keranjang, pop up konfimasi tidak hilang dan pop up konfirmasi saat membatalkan transaksi on
+- filter status pada riwayat penjualan tidak berfungsi
+- buatkan juga untuk untuk print struk nya
+- buatkan juga hapus hapus transaksi tetapi hanya super admin dan admin saja dengan konfirmasi password dimasukkan ulang dan data atau barang obat kembali bertambah di database
+- untuk selesaikan pembayaran pada transaksi on hold samakan ui modal pada transaksi biasa, yang punya kembalian

@@ -9,5 +9,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const [settingRes] = await Promise.all([
     serverFetch<ApiResponse<{ storeName: string; taxPercentage: number }>>('/settings', locals.accessToken),
   ])
-  return { sale: res.data, storeName: settingRes.data?.storeName ?? 'PharmaPOS' }
+  return {
+    sale: res.data,
+    storeName: settingRes.data?.storeName ?? 'PharmaPOS',
+    userRole: locals.user?.role?.name ?? '',
+  }
 }

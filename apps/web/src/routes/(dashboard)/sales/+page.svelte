@@ -190,30 +190,81 @@
   }
 
   onMount(() => { searchInput?.focus() })
+
+  // ── Print ─────────────────────────────────────────────────────────────────────
+  function printReceipt() {
+    if (!receipt) return
+    const date = new Intl.DateTimeFormat('id-ID', {
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    }).format(new Date(receipt.createdAt))
+
+    const itemsHtml = receipt.items.map(item => `
+      <div class="item-name">${item.product.name}</div>
+      <div class="row item-row">
+        <span style="padding-left:12px">${item.quantity} ${item.product.unit?.symbol ?? ''} &times; ${formatRp(Number(item.price))}</span>
+        <span>${formatRp(Number(item.subtotal))}</span>
+      </div>`).join('')
+
+    const payHtml = receipt.paymentMethod === 'CASH'
+      ? `<div class="row"><span>Tunai</span><span>${formatRp(Number(receipt.amountPaid))}</span></div>
+         <div class="row bold"><span>Kembali</span><span>${formatRp(Number(receipt.change))}</span></div>`
+      : `<div class="row"><span>Metode Bayar</span><span>Transfer</span></div>`
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Struk ${receipt.invoiceNumber}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Courier New',Courier,monospace;font-size:11.5px;width:80mm;padding:4mm 5mm;line-height:1.6;color:#000}
+  .center{text-align:center}
+  .bold{font-weight:bold}
+  .store-name{font-size:16px;font-weight:bold;letter-spacing:0.5px}
+  .sep-dash{border:none;border-top:1px dashed #000;margin:5px 0}
+  .sep-solid{border:none;border-top:1px solid #000;margin:5px 0}
+  .row{display:flex;justify-content:space-between;align-items:flex-start}
+  .item-name{font-weight:bold;margin-top:4px}
+  .item-row{font-size:11px;color:#333}
+  .total-row{display:flex;justify-content:space-between;font-weight:bold;font-size:14px;padding:3px 0}
+  .meta{font-size:10.5px;color:#444}
+  @page{size:80mm auto;margin:0}
+</style></head>
+<body>
+  <div class="center store-name">${data.storeName}</div>
+  <div class="center meta">Apotek &mdash; Struk Pembelian</div>
+  <hr class="sep-dash">
+  <div class="meta">No. Faktur : <strong>${receipt.invoiceNumber}</strong></div>
+  <div class="meta">Tanggal   : ${date}</div>
+  <div class="meta">Kasir     : ${receipt.cashier?.name ?? '-'}</div>
+  <hr class="sep-dash">
+  ${itemsHtml}
+  <hr class="sep-dash">
+  <div class="row"><span>Subtotal</span><span>${formatRp(Number(receipt.subtotal))}</span></div>
+  ${Number(receipt.discount) > 0 ? `<div class="row"><span>Diskon</span><span>-${formatRp(Number(receipt.discount))}</span></div>` : ''}
+  ${Number(receipt.tax) > 0 ? `<div class="row meta"><span>Pajak</span><span>${formatRp(Number(receipt.tax))}</span></div>` : ''}
+  <hr class="sep-solid">
+  <div class="total-row"><span>TOTAL</span><span>${formatRp(Number(receipt.total))}</span></div>
+  <hr class="sep-solid">
+  ${payHtml}
+  <hr class="sep-dash">
+  <div class="center" style="margin-top:6px;font-size:11px">Terima kasih sudah berbelanja!</div>
+  <div class="center" style="font-size:11px">Semoga lekas sembuh :)</div>
+  <div style="margin-top:10px"></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html; charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const iframe = document.createElement('iframe')
+    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0'
+    document.body.appendChild(iframe)
+    iframe.src = url
+    iframe.onload = () => {
+      iframe.contentWindow?.print()
+      setTimeout(() => { document.body.removeChild(iframe); URL.revokeObjectURL(url) }, 1000)
+    }
+  }
 </script>
 
 <svelte:head><title>POS Kasir — PharmaPOS</title></svelte:head>
-
-<style>
-  @media print {
-    :global(body > *) { display: none !important; }
-    .receipt-print { display: block !important; }
-  }
-  .receipt-print { display: none; }
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .cart-drawer {
-    transform: translateY(100%);
-    transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
-  }
-  .cart-drawer.open {
-    transform: translateY(0);
-  }
-</style>
 
 <!-- ── Main POS layout ─────────────────────────────────────────────────────── -->
 <div class="flex gap-4 h-[calc(100vh-4.5rem)] -mt-1 pb-16 lg:pb-0">
@@ -763,7 +814,7 @@
             <p class="text-xs text-gray-400 font-mono">{receipt.invoiceNumber}</p>
           </div>
         </div>
-        <button on:click={() => window.print()}
+        <button on:click={printReceipt}
           class="px-3 py-1.5 text-xs font-semibold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
           🖨 Print
         </button>
@@ -820,46 +871,13 @@
   </div>
 {/if}
 
-<!-- ── Print receipt area ──────────────────────────────────────────────────── -->
-<div class="receipt-print p-4 max-w-[58mm] mx-auto font-mono text-[11px] leading-relaxed">
-  {#if receipt}
-    <p class="text-center font-bold text-[14px]">PharmaPOS</p>
-    <p class="text-center text-gray-500">Apotik PharmaPOS</p>
-    <p class="text-center border-t border-dashed border-gray-400 mt-2 pt-2">Struk Pembayaran</p>
-    <p class="mt-1">No: {receipt.invoiceNumber}</p>
-    <p>Kasir: {receipt.cashier?.name}</p>
-    <p>{new Date(receipt.createdAt).toLocaleString('id-ID')}</p>
-    <div class="border-t border-dashed border-gray-400 my-2"></div>
-    {#each receipt.items as item}
-      <p class="font-semibold">{item.product.name}</p>
-      <div class="flex justify-between pl-2">
-        <span>{item.quantity} × {formatRp(Number(item.price))}</span>
-        <span>{formatRp(Number(item.subtotal))}</span>
-      </div>
-    {/each}
-    <div class="border-t border-dashed border-gray-400 my-2"></div>
-    <div class="flex justify-between"><span>Subtotal</span><span>{formatRp(Number(receipt.subtotal))}</span></div>
-    {#if Number(receipt.discount) > 0}
-      <div class="flex justify-between"><span>Diskon</span><span>-{formatRp(Number(receipt.discount))}</span></div>
-    {/if}
-    <div class="flex justify-between"><span>Pajak</span><span>{formatRp(Number(receipt.tax))}</span></div>
-    <div class="flex justify-between font-bold"><span>TOTAL</span><span>{formatRp(Number(receipt.total))}</span></div>
-    {#if receipt.paymentMethod === 'CASH'}
-      <div class="flex justify-between"><span>Bayar</span><span>{formatRp(Number(receipt.amountPaid))}</span></div>
-      <div class="flex justify-between"><span>Kembali</span><span>{formatRp(Number(receipt.change))}</span></div>
-    {/if}
-    <div class="border-t border-dashed border-gray-400 my-2"></div>
-    <p class="text-center">Terima kasih sudah berbelanja!</p>
-  {/if}
-</div>
-
 <!-- Confirm dialogs -->
 <ConfirmDialog bind:open={showCancelCartConfirm}
   title="Kosongkan Keranjang?"
   message="Semua item akan dihapus dari keranjang."
-  on:confirm={() => { cart.clear(); cartDiscount = 0 }} />
+  on:confirm={() => { cart.clear(); cartDiscount = 0; showCancelCartConfirm = false }} />
 
 <ConfirmDialog bind:open={showCancelHoldConfirm}
   title="Batalkan Transaksi Hold?"
   message="Transaksi ini akan dibatalkan dan tidak dapat dikembalikan."
-  on:confirm={cancelHold} />
+  on:confirm={() => { cancelHold(); showCancelHoldConfirm = false }} />

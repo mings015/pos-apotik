@@ -99,7 +99,7 @@
 
 {#if showForm}
   <div class="fixed inset-0 z-50 flex items-center justify-center">
-    <button class="absolute inset-0 bg-black/40" on:click={() => showForm = false} />
+    <button class="absolute inset-0 bg-black/40" aria-label="Tutup" on:click={() => showForm = false}></button>
     <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
       <h3 class="text-base font-semibold text-gray-900 mb-4">{editItem ? 'Edit Pengguna' : 'Tambah Pengguna'}</h3>
       <form method="POST" action={editItem ? '?/update' : '?/create'}
@@ -107,25 +107,25 @@
         {#if editItem}<input type="hidden" name="id" value={editItem.id} />{/if}
         <div class="space-y-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-            <input name="name" value={editItem?.name ?? ''} required minlength="2"
+            <label for="usr-name" class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
+            <input id="usr-name" name="name" value={editItem?.name ?? ''} required minlength="2"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
-            <input name="email" type="email" value={editItem?.email ?? ''} required
+            <label for="usr-email" class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+            <input id="usr-email" name="email" type="email" value={editItem?.email ?? ''} required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="usr-password" class="block text-sm font-medium text-gray-700 mb-1">
               Password {#if !editItem}<span class="text-red-500">*</span>{:else}(kosongkan jika tidak diubah){/if}
             </label>
-            <input name="password" type="password" minlength="8" required={!editItem}
+            <input id="usr-password" name="password" type="password" minlength="8" required={!editItem}
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-red-500">*</span></label>
-            <select name="roleId" required
+            <label for="usr-role" class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-red-500">*</span></label>
+            <select id="usr-role" name="roleId" required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
               <option value="">Pilih role...</option>
               {#each data.roles as role}

@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
+import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common'
+import * as bcrypt from 'bcrypt'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CreateSaleDto } from './dto/create-sale.dto'
 import { CheckoutHoldDto } from './dto/checkout-hold.dto'
@@ -139,12 +140,18 @@ export class SalesService {
   }
 
   async findAll(query: QuerySaleDto) {
-    const { page = 1, limit = 20, status, dateFrom, dateTo, cashierId } = query
+    const { page = 1, limit = 20, status, dateFrom, dateTo, cashierId, search } = query
     const skip = (page - 1) * limit
     const where: Prisma.SaleWhereInput = {}
 
     if (status) where.status = status as 'HOLD' | 'COMPLETED' | 'CANCELLED'
     if (cashierId) where.cashierId = cashierId
+    if (search) {
+      where.OR = [
+        { invoiceNumber: { contains: search, mode: 'insensitive' } },
+        { cashier: { name: { contains: search, mode: 'insensitive' } } },
+      ]
+    }
     if (dateFrom || dateTo) {
       where.createdAt = {}
       if (dateFrom) where.createdAt.gte = new Date(dateFrom)
@@ -218,5 +225,42 @@ export class SalesService {
     if (!sale) throw new NotFoundException('Transaksi tidak ditemukan')
     if (sale.status !== 'HOLD') throw new BadRequestException('Hanya transaksi HOLD yang dapat dibatalkan')
     return this.prisma.sale.update({ where: { id }, data: { status: 'CANCELLED' } })
+  }
+
+  async deleteSale(id: string, userId: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+    if (!user) throw new NotFoundException('User tidak ditemukan')
+
+    const valid = await bcrypt.compare(password, user.password)
+    if (!valid) throw new UnauthorizedException('Password tidak valid')
+
+    return this.prisma.$transaction(async (tx) => {
+      const sale = await tx.sale.findUnique({ where: { id }, include: { items: true } })
+      if (!sale) throw new NotFoundException('Transaksi tidak ditemukan')
+
+      if (sale.status === 'COMPLETED') {
+        for (const item of sale.items) {
+          const product = await tx.product.findUnique({ where: { id: item.productId } })
+          if (!product) continue
+          const afterStock = product.stock + item.quantity
+          await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: item.quantity } } })
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              movementType: 'RETURN',
+              quantity: item.quantity,
+              beforeStock: product.stock,
+              afterStock,
+              referenceType: 'SALE_DELETE',
+              referenceId: id,
+              notes: `Penghapusan transaksi ${sale.invoiceNumber}`,
+              createdById: userId,
+            },
+          })
+        }
+      }
+
+      return tx.sale.delete({ where: { id } })
+    })
   }
 }

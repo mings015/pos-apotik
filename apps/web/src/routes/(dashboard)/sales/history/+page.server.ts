@@ -7,11 +7,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const status = url.searchParams.get('status') ?? ''
   const dateFrom = url.searchParams.get('dateFrom') ?? ''
   const dateTo = url.searchParams.get('dateTo') ?? ''
+  const search = url.searchParams.get('search') ?? ''
 
   const params = new URLSearchParams({ page, limit: '20' })
   if (status) params.set('status', status)
   if (dateFrom) params.set('dateFrom', dateFrom)
   if (dateTo) params.set('dateTo', dateTo)
+  if (search) params.set('search', search)
 
   const res = await serverFetch<ApiResponse<PaginatedResponse<Record<string, unknown>>>>(
     `/sales?${params}`, locals.accessToken
@@ -19,6 +21,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   return {
     sales: res.data ?? { data: [], total: 0, page: 1, limit: 20, totalPages: 0 },
-    filters: { status, dateFrom, dateTo },
+    filters: { status, dateFrom, dateTo, search },
   }
 }
