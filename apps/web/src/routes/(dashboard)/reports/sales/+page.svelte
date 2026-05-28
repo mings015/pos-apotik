@@ -58,16 +58,16 @@
 <!-- Filters -->
 <form method="get" class="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap gap-3 items-end no-print">
   <div class="flex flex-col gap-1">
-    <label class="text-xs text-gray-500">Dari</label>
-    <input type="date" name="dateFrom" value={data.filters.dateFrom} class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
+    <label for="rep-date-from" class="text-xs text-gray-500">Dari</label>
+    <input id="rep-date-from" type="date" name="dateFrom" value={data.filters.dateFrom} class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
   </div>
   <div class="flex flex-col gap-1">
-    <label class="text-xs text-gray-500">Sampai</label>
-    <input type="date" name="dateTo" value={data.filters.dateTo} class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
+    <label for="rep-date-to" class="text-xs text-gray-500">Sampai</label>
+    <input id="rep-date-to" type="date" name="dateTo" value={data.filters.dateTo} class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
   </div>
   <div class="flex flex-col gap-1">
-    <label class="text-xs text-gray-500">Kasir</label>
-    <select name="cashierId" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+    <label for="rep-cashier" class="text-xs text-gray-500">Kasir</label>
+    <select id="rep-cashier" name="cashierId" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
       <option value="">Semua</option>
       {#each data.cashiers as c}
         <option value={c.id} selected={data.filters.cashierId === c.id}>{c.name}</option>
@@ -75,8 +75,8 @@
     </select>
   </div>
   <div class="flex flex-col gap-1">
-    <label class="text-xs text-gray-500">Metode</label>
-    <select name="paymentMethod" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+    <label for="rep-method" class="text-xs text-gray-500">Metode</label>
+    <select id="rep-method" name="paymentMethod" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
       <option value="">Semua</option>
       <option value="CASH" selected={data.filters.paymentMethod === 'CASH'}>Tunai</option>
       <option value="TRANSFER" selected={data.filters.paymentMethod === 'TRANSFER'}>Transfer</option>

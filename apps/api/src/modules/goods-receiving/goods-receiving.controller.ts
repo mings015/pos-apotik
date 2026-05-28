@@ -13,7 +13,7 @@ export class GoodsReceivingController {
 
   @Post()
   @Roles('SUPER_ADMIN', 'ADMIN', 'WAREHOUSE')
-  async receive(@Body() dto: CreateGoodsReceivingDto, @CurrentUser() user: any) {
+  async receive(@Body() dto: CreateGoodsReceivingDto, @CurrentUser() user: { id: string }) {
     const data = await this.goodsReceivingService.receive(dto, user.id)
     return { success: true, message: 'Barang berhasil diterima dan stok diperbarui', data }
   }

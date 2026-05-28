@@ -29,7 +29,7 @@ export class PurchasesController {
 
   @Post()
   @Roles('SUPER_ADMIN', 'ADMIN', 'WAREHOUSE')
-  async create(@Body() dto: CreatePurchaseOrderDto, @CurrentUser() user: any) {
+  async create(@Body() dto: CreatePurchaseOrderDto, @CurrentUser() user: { id: string }) {
     const data = await this.purchasesService.create(dto, user.id)
     return { success: true, message: 'Purchase order berhasil dibuat', data }
   }

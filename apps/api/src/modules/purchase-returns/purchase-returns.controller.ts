@@ -28,7 +28,7 @@ export class PurchaseReturnsController {
 
   @Post()
   @Roles('SUPER_ADMIN', 'ADMIN', 'WAREHOUSE')
-  async create(@Body() dto: CreatePurchaseReturnDto, @CurrentUser() user: any) {
+  async create(@Body() dto: CreatePurchaseReturnDto, @CurrentUser() user: { id: string }) {
     const data = await this.purchaseReturnsService.create(dto, user.id)
     return { success: true, message: 'Retur pembelian berhasil dibuat', data }
   }

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import type { Prisma } from '@prisma/client'
 import { CreatePurchaseReturnDto } from './dto/create-purchase-return.dto'
 import { QueryPurchaseReturnDto } from './dto/query-purchase-return.dto'
 
@@ -135,12 +136,12 @@ export class PurchaseReturnsService {
     const { page = 1, limit = 10, supplierInvoiceId, dateFrom, dateTo } = query
     const skip = (page - 1) * limit
 
-    const where: any = {}
+    const where: Prisma.PurchaseReturnWhereInput = {}
     if (supplierInvoiceId) where.supplierInvoiceId = supplierInvoiceId
     if (dateFrom || dateTo) {
       where.createdAt = {}
-      if (dateFrom) where.createdAt.gte = new Date(dateFrom)
-      if (dateTo) where.createdAt.lte = new Date(dateTo + 'T23:59:59.999Z')
+      if (dateFrom) (where.createdAt as Prisma.DateTimeFilter).gte = new Date(dateFrom)
+      if (dateTo) (where.createdAt as Prisma.DateTimeFilter).lte = new Date(dateTo + 'T23:59:59.999Z')
     }
 
     const [data, total] = await this.prisma.$transaction([

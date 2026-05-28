@@ -36,7 +36,7 @@ export class SupplierInvoicesController {
 
   @Patch(':id/payment')
   @Roles('SUPER_ADMIN', 'ADMIN')
-  async recordPayment(@Param('id') id: string, @Body() dto: RecordPaymentDto, @CurrentUser() user: any) {
+  async recordPayment(@Param('id') id: string, @Body() dto: RecordPaymentDto, @CurrentUser() user: { id: string }) {
     const data = await this.supplierInvoicesService.recordPayment(id, dto, user.id)
     return { success: true, message: 'Pembayaran berhasil dicatat', data }
   }

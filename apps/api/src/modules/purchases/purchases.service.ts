@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import type { Prisma, PurchaseOrderStatus } from '@prisma/client'
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto'
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto'
 import { QueryPurchaseOrderDto } from './dto/query-purchase-order.dto'
@@ -74,13 +75,13 @@ export class PurchasesService {
     const { page = 1, limit = 10, status, supplierId, search, dateFrom, dateTo } = query
     const skip = (page - 1) * limit
 
-    const where: any = {}
-    if (status) where.status = status
+    const where: Prisma.PurchaseOrderWhereInput = {}
+    if (status) where.status = status as PurchaseOrderStatus
     if (supplierId) where.supplierId = supplierId
     if (dateFrom || dateTo) {
       where.createdAt = {}
-      if (dateFrom) where.createdAt.gte = new Date(dateFrom)
-      if (dateTo) where.createdAt.lte = new Date(dateTo + 'T23:59:59.999Z')
+      if (dateFrom) (where.createdAt as Prisma.DateTimeFilter).gte = new Date(dateFrom)
+      if (dateTo) (where.createdAt as Prisma.DateTimeFilter).lte = new Date(dateTo + 'T23:59:59.999Z')
     }
     if (search) {
       where.OR = [
@@ -186,7 +187,7 @@ export class PurchasesService {
     return this.prisma.purchaseOrder.update({
       where: { id },
       data: {
-        ...(dto.status ? { status: dto.status as any } : {}),
+        ...(dto.status ? { status: dto.status as PurchaseOrderStatus } : {}),
         ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
       },
       include: {

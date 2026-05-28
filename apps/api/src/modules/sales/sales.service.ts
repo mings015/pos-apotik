@@ -28,6 +28,9 @@ export class SalesService {
     saleId: string,
     cashierId: string,
   ) {
+    // Lock row to prevent concurrent oversell (SELECT FOR UPDATE)
+    await tx.$executeRaw`SELECT id FROM products WHERE id = ${productId} FOR UPDATE`
+
     const product = await tx.product.findUnique({ where: { id: productId } })
     if (!product) throw new NotFoundException('Produk tidak ditemukan')
     if (product.stock < quantity)

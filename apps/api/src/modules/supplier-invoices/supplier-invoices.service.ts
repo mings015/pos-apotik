@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import type { Prisma, InvoicePaymentStatus } from '@prisma/client'
 import { QuerySupplierInvoiceDto } from './dto/query-supplier-invoice.dto'
 import { RecordPaymentDto } from './dto/record-payment.dto'
 import { UpdateInvoiceDto } from './dto/update-invoice.dto'
@@ -12,13 +13,13 @@ export class SupplierInvoicesService {
     const { page = 1, limit = 10, paymentStatus, supplierId, dateFrom, dateTo } = query
     const skip = (page - 1) * limit
 
-    const where: any = {}
-    if (paymentStatus) where.paymentStatus = paymentStatus
+    const where: Prisma.SupplierInvoiceWhereInput = {}
+    if (paymentStatus) where.paymentStatus = paymentStatus as InvoicePaymentStatus
     if (supplierId) where.purchaseOrder = { supplierId }
     if (dateFrom || dateTo) {
       where.createdAt = {}
-      if (dateFrom) where.createdAt.gte = new Date(dateFrom)
-      if (dateTo) where.createdAt.lte = new Date(dateTo + 'T23:59:59.999Z')
+      if (dateFrom) (where.createdAt as Prisma.DateTimeFilter).gte = new Date(dateFrom)
+      if (dateTo) (where.createdAt as Prisma.DateTimeFilter).lte = new Date(dateTo + 'T23:59:59.999Z')
     }
 
     const [data, total] = await this.prisma.$transaction([
@@ -114,7 +115,7 @@ export class SupplierInvoicesService {
 
       return tx.supplierInvoice.update({
         where: { id },
-        data: { paidAmount: newPaidAmount, paymentStatus: newStatus as any },
+        data: { paidAmount: newPaidAmount, paymentStatus: newStatus as InvoicePaymentStatus },
         include: {
           payments: {
             select: {

@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Body, UseGuards, Res } from '@nestjs/common'
 import { Response } from 'express'
+import { Throttle, SkipThrottle } from '@nestjs/throttler'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
@@ -16,6 +17,7 @@ interface AuthUser {
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(dto)
@@ -49,6 +51,7 @@ export class AuthController {
     return { success: true, message: 'Password berhasil direset' }
   }
 
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@CurrentUser() user: AuthUser) {
