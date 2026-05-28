@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "preDeployCommand": "cd apps/api && (pnpm exec prisma migrate resolve --rolled-back 20260526000001_add_settings_receipt_fields 2>/dev/null || true) && pnpm exec prisma migrate deploy && node prisma/seed-prod.js",
+    "preDeployCommand": "cd apps/api && (pnpm exec prisma migrate resolve --rolled-back 20260526000001_add_settings_receipt_fields 2>/dev/null || true) && pnpm exec prisma migrate deploy && pnpm exec ts-node -r tsconfig-paths/register prisma/seed.ts",
     "startCommand": "node apps/api/dist/main",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
