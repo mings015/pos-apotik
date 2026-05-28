@@ -6,6 +6,11 @@
 
   $: stats = data.stats as any
   $: role = (data as any).role as string
+  $: recentSales = (data as any).recentSales as any[] ?? []
+  $: cashierToday = (data as any).cashierToday as { transactions: number; recentSales: any[] } ?? { transactions: 0, recentSales: [] }
+  $: heldCount = (data as any).heldCount as number ?? 0
+  $: pendingPOCount = (data as any).pendingPOCount as number ?? 0
+  $: approvedPOCount = (data as any).approvedPOCount as number ?? 0
 
   function rp(n: number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n)
@@ -16,6 +21,10 @@
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}Jt`
     if (n >= 1_000) return `${(n / 1_000).toFixed(0)}Rb`
     return String(n)
+  }
+
+  function fmtTime(dateStr: string) {
+    return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
   }
 
   // ── SVG line chart ──────────────────────────────────────────────────────────
@@ -204,32 +213,68 @@
       </div>
     </div>
 
-    <!-- Payment Methods -->
-    {#if stats.paymentBreakdown?.length > 0}
-      <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-        <h2 class="text-sm font-semibold text-gray-800 mb-4">Metode Pembayaran Bulan Ini</h2>
-        <div class="flex gap-8 flex-wrap">
-          {#each stats.paymentBreakdown as pb}
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
-                {#if pb.method === 'CASH'}
-                  <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                {:else}
-                  <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                {/if}
+    <!-- Payment Methods + Recent Sales -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- Payment Breakdown -->
+      {#if stats.paymentBreakdown?.length > 0}
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <h2 class="text-sm font-semibold text-gray-800 mb-4">Metode Pembayaran Bulan Ini</h2>
+          <div class="flex gap-6 flex-wrap">
+            {#each stats.paymentBreakdown as pb}
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
+                  {#if pb.method === 'CASH'}
+                    <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                  {:else}
+                    <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                  {/if}
+                </div>
+                <div>
+                  <p class="text-base font-bold text-gray-900">{shortRp(Number(pb.total))}</p>
+                  <p class="text-xs text-gray-400">{pb.method === 'CASH' ? 'Tunai' : 'Transfer'} · {pb.count}x</p>
+                </div>
               </div>
-              <div>
-                <p class="text-base font-bold text-gray-900">{shortRp(Number(pb.total))}</p>
-                <p class="text-xs text-gray-400">{pb.method === 'CASH' ? 'Tunai' : 'Transfer'} · {pb.count}x</p>
-              </div>
-            </div>
-          {/each}
+            {/each}
+          </div>
         </div>
-      </div>
-    {/if}
+      {/if}
+
+      <!-- Recent Sales Today -->
+      {#if recentSales.length > 0}
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold text-gray-800">Transaksi Hari Ini</h2>
+            <a href="/sales" class="text-xs text-sky-600 hover:text-sky-700 font-medium">Lihat semua →</a>
+          </div>
+          <div class="space-y-1">
+            {#each recentSales as sale}
+              <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
+                    <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-900">{sale.invoiceNumber}</p>
+                    <p class="text-xs text-gray-400 truncate">{sale.cashier?.name ?? '—'} · {fmtTime(sale.createdAt)}</p>
+                  </div>
+                </div>
+                <div class="text-right shrink-0 ml-2">
+                  <p class="text-sm font-semibold text-gray-900">{shortRp(sale.total)}</p>
+                  <p class="text-xs text-gray-400">{sale.paymentMethod === 'CASH' ? 'Tunai' : 'Transfer'}</p>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
 
   {:else if stats && role === 'WAREHOUSE'}
     <!-- ── Warehouse Dashboard ─────────────────────────────────────────────────── -->
+
+    <!-- Inventory Health Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
         <div class="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center mb-3">
@@ -264,6 +309,7 @@
       </div>
     </div>
 
+    <!-- Alert Badges -->
     {#if stats.expiredProducts > 0 || stats.nearExpiredProducts > 0 || stats.lowStockProducts > 0}
       <div class="flex gap-2 flex-wrap">
         {#if stats.expiredProducts > 0}
@@ -285,7 +331,44 @@
       </div>
     {/if}
 
-    <!-- Quick access + top products -->
+    <!-- Purchase Order Status Cards -->
+    {#if pendingPOCount > 0 || approvedPOCount > 0}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/purchases?status=PENDING"
+          class="flex items-center gap-4 rounded-2xl p-4 border transition-all hover:shadow-md {pendingPOCount > 0 ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200'}">
+          <div class="w-11 h-11 rounded-xl {pendingPOCount > 0 ? 'bg-amber-100' : 'bg-gray-100'} flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 {pendingPOCount > 0 ? 'text-amber-600' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-xl font-bold {pendingPOCount > 0 ? 'text-amber-700' : 'text-gray-900'}">{pendingPOCount}</p>
+            <p class="text-xs {pendingPOCount > 0 ? 'text-amber-600' : 'text-gray-500'}">PO Menunggu Persetujuan</p>
+          </div>
+          {#if pendingPOCount > 0}
+            <span class="ml-auto text-xs text-amber-600 font-medium">Lihat →</span>
+          {/if}
+        </a>
+
+        <a href="/purchases?status=APPROVED"
+          class="flex items-center gap-4 rounded-2xl p-4 border transition-all hover:shadow-md {approvedPOCount > 0 ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}">
+          <div class="w-11 h-11 rounded-xl {approvedPOCount > 0 ? 'bg-blue-100' : 'bg-gray-100'} flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 {approvedPOCount > 0 ? 'text-blue-600' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-xl font-bold {approvedPOCount > 0 ? 'text-blue-700' : 'text-gray-900'}">{approvedPOCount}</p>
+            <p class="text-xs {approvedPOCount > 0 ? 'text-blue-600' : 'text-gray-500'}">PO Siap Diterima</p>
+          </div>
+          {#if approvedPOCount > 0}
+            <span class="ml-auto text-xs text-blue-600 font-medium">Terima →</span>
+          {/if}
+        </a>
+      </div>
+    {/if}
+
+    <!-- Quick Access -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {#each [
         { href: '/purchases', label: 'Pembelian', color: 'sky', icon: 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0' },
@@ -302,6 +385,7 @@
       {/each}
     </div>
 
+    <!-- Top Products -->
     {#if topProducts.length > 0}
       <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
         <h2 class="text-sm font-semibold text-gray-800 mb-4">Produk Terlaris Bulan Ini <span class="text-gray-400 font-normal">(referensi restok)</span></h2>
@@ -326,13 +410,49 @@
 
   {:else}
     <!-- ── Cashier Dashboard ───────────────────────────────────────────────────── -->
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-2xl p-5 text-white shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center mb-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <p class="text-3xl font-bold">{cashierToday.transactions}</p>
+        <p class="text-sky-200 text-xs mt-1">Transaksi Hari Ini</p>
+      </div>
+
+      <div class="rounded-2xl p-5 shadow-sm border {heldCount > 0 ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200'}">
+        <div class="w-9 h-9 rounded-xl {heldCount > 0 ? 'bg-amber-100' : 'bg-gray-100'} flex items-center justify-center mb-3">
+          <svg class="w-5 h-5 {heldCount > 0 ? 'text-amber-600' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <p class="text-3xl font-bold {heldCount > 0 ? 'text-amber-700' : 'text-gray-900'}">{heldCount}</p>
+        <p class="text-xs mt-1 {heldCount > 0 ? 'text-amber-600 font-medium' : 'text-gray-400'}">
+          {heldCount > 0 ? 'Penjualan Ditahan' : 'Tidak Ada Hold'}
+        </p>
+      </div>
+
+      <!-- Account info compact -->
+      <div class="hidden sm:block bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center mb-3 text-white font-bold text-sm">
+          {$currentUser?.name?.charAt(0)?.toUpperCase() ?? 'U'}
+        </div>
+        <p class="font-semibold text-gray-900 truncate">{$currentUser?.name ?? '—'}</p>
+        <p class="text-xs text-gray-400 truncate">{$currentUser?.email ?? '—'}</p>
+      </div>
+    </div>
+
+    <!-- Action Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <a href="/sales" class="group bg-gradient-to-br from-sky-500 to-sky-600 rounded-2xl p-6 text-white hover:shadow-lg hover:-translate-y-0.5 transition-all">
         <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-4 group-hover:bg-white/30 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         </div>
         <p class="text-lg font-bold">Kasir POS</p>
-        <p class="text-sky-200 text-sm mt-0.5">Buat transaksi penjualan</p>
+        <p class="text-sky-200 text-sm mt-0.5">Buat transaksi penjualan baru</p>
         <div class="mt-4 flex items-center gap-1 text-sky-200 text-xs">
           <span>Mulai kasir</span>
           <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -344,7 +464,7 @@
           <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         </div>
         <p class="text-lg font-bold text-gray-900">Daftar Produk</p>
-        <p class="text-gray-500 text-sm mt-0.5">Lihat informasi produk</p>
+        <p class="text-gray-500 text-sm mt-0.5">Lihat stok dan informasi produk</p>
         <div class="mt-4 flex items-center gap-1 text-gray-400 text-xs">
           <span>Lihat produk</span>
           <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -352,23 +472,50 @@
       </a>
     </div>
 
-    <!-- Account Info -->
-    <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-800 mb-3">Informasi Akun</h2>
-      <div class="grid grid-cols-3 gap-4 text-sm">
-        <div>
-          <p class="text-xs text-gray-400 mb-0.5">Nama</p>
-          <p class="font-semibold text-gray-900">{$currentUser?.name ?? '-'}</p>
+    <!-- Recent Transactions Today -->
+    {#if cashierToday.recentSales.length > 0}
+      <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold text-gray-800">Transaksi Hari Ini</h2>
+          <a href="/sales" class="text-xs text-sky-600 hover:text-sky-700 font-medium">Lihat semua →</a>
         </div>
-        <div>
-          <p class="text-xs text-gray-400 mb-0.5">Email</p>
-          <p class="font-semibold text-gray-900 truncate">{$currentUser?.email ?? '-'}</p>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400 mb-0.5">Role</p>
-          <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-700">{$currentUser?.role?.name ?? '-'}</span>
+        <div class="space-y-1">
+          {#each cashierToday.recentSales as sale}
+            <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">{sale.invoiceNumber}</p>
+                  <p class="text-xs text-gray-400">{fmtTime(sale.createdAt)}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-semibold text-gray-900">{rp(sale.total)}</p>
+                <p class="text-xs text-gray-400">{sale.paymentMethod === 'CASH' ? 'Tunai' : 'Transfer'}</p>
+              </div>
+            </div>
+          {/each}
         </div>
       </div>
-    </div>
+    {:else}
+      <!-- Account Info (shown when no recent sales) -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm sm:hidden">
+        <h2 class="text-sm font-semibold text-gray-800 mb-3">Informasi Akun</h2>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p class="text-xs text-gray-400 mb-0.5">Nama</p>
+            <p class="font-semibold text-gray-900">{$currentUser?.name ?? '-'}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 mb-0.5">Email</p>
+            <p class="font-semibold text-gray-900 truncate">{$currentUser?.email ?? '-'}</p>
+          </div>
+        </div>
+      </div>
+    {/if}
   {/if}
 </div>

@@ -56,6 +56,8 @@
       <div
         class="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-gray-200 shadow-lg py-1 z-50"
         on:click|stopPropagation
+        on:keydown|stopPropagation
+        role="none"
       >
         <div class="px-4 py-2 border-b border-gray-100">
           <p class="text-sm font-medium text-gray-900">{user?.name}</p>

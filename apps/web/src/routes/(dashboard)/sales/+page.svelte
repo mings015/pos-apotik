@@ -244,7 +244,7 @@
 
     const html = '<!DOCTYPE html>' +
       `<html><head><meta charset="UTF-8"><title>Struk ${receipt.invoiceNumber}</title>` +
-      '<style>' + receiptCss + '</style></head>' +
+      '<' + 'style>' + receiptCss + '</' + 'style></head>' +
       '<body>' +
       `<div class="center store-name">${data.storeName}</div>` +
       addressHtml +

@@ -30,7 +30,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={icons[toast.type]} />
       </svg>
       <p class="flex-1">{toast.message}</p>
-      <button on:click={() => removeToast(toast.id)} class="shrink-0 opacity-60 hover:opacity-100 transition">
+      <button on:click={() => removeToast(toast.id)} class="shrink-0 opacity-60 hover:opacity-100 transition" aria-label="Tutup notifikasi">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>

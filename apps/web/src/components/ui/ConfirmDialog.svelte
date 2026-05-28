@@ -23,7 +23,7 @@
 {#if open}
   <div class="fixed inset-0 z-50 flex items-center justify-center">
     <!-- Backdrop -->
-    <button class="absolute inset-0 bg-black/40" on:click={cancel} />
+    <button class="absolute inset-0 bg-black/40" on:click={cancel} aria-label="Tutup"></button>
 
     <!-- Dialog -->
     <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
