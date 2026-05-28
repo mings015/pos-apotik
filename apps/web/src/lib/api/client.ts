@@ -1,4 +1,4 @@
-import { PUBLIC_API_URL } from '$env/static/public'
+import { env } from '$env/dynamic/public'
 import type { ApiResponse } from '@pharmapos/types'
 
 type RequestOptions = Omit<RequestInit, 'body'> & {
@@ -15,7 +15,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${PUBLIC_API_URL}${endpoint}`, {
+  const res = await fetch(`${env.PUBLIC_API_URL}${endpoint}`, {
     ...init,
     headers,
     credentials: 'include',
