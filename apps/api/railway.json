@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "preDeployCommand": "npx prisma migrate deploy --schema apps/api/prisma/schema.prisma",
+    "preDeployCommand": "pnpm exec prisma migrate deploy --schema apps/api/prisma/schema.prisma",
     "startCommand": "node apps/api/dist/main",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
