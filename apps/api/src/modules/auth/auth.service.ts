@@ -34,7 +34,7 @@ export class AuthService {
       throw new UnauthorizedException('Akun Anda telah dinonaktifkan')
     }
 
-    const payload = { sub: user.id, email: user.email }
+    const payload = { sub: user.id, email: user.email, name: user.name, role: user.role.name }
     const accessToken = this.jwt.sign(payload)
     const { password: _password, ...userWithoutPassword } = user
 

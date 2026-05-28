@@ -1,8 +1,18 @@
 import { redirect } from '@sveltejs/kit'
 import type { Handle } from '@sveltejs/kit'
-import type { UserDto, ApiResponse } from '@pharmapos/types'
 
-const API_URL = process.env.API_URL || 'http://localhost:3000/api'
+function decodeJwt(token: string): { sub: string; email: string; name: string; role: string; exp: number } | null {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf-8'))
+    if (!payload.exp || Date.now() / 1000 > payload.exp) return null
+    if (!payload.role) return null
+    return payload
+  } catch {
+    return null
+  }
+}
 
 // Routes yang memerlukan role tertentu (prefix-based)
 const routeRoles: Array<{ prefix: string; roles: string[] }> = [
@@ -30,22 +40,23 @@ export const handle: Handle = async ({ event, resolve }) => {
   const { pathname } = event.url
 
   if (accessToken) {
-    try {
-      const res = await fetch(`${API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      if (res.ok) {
-        const data = (await res.json()) as ApiResponse<UserDto>
-        event.locals.user = data.data ?? null
-        event.locals.accessToken = accessToken
-      } else {
-        event.locals.user = null
-        event.locals.accessToken = null
-        event.cookies.delete('accessToken', { path: '/' })
+    const payload = decodeJwt(accessToken)
+    if (payload) {
+      event.locals.user = {
+        id: payload.sub,
+        name: payload.name,
+        email: payload.email,
+        roleId: '',
+        isActive: true,
+        role: { id: '', name: payload.role, createdAt: new Date(), updatedAt: new Date() },
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
-    } catch {
+      event.locals.accessToken = accessToken
+    } else {
       event.locals.user = null
       event.locals.accessToken = null
+      event.cookies.delete('accessToken', { path: '/' })
     }
   } else {
     event.locals.user = null
