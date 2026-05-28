@@ -24,4 +24,16 @@ export class UpdateSettingDto {
   @IsOptional()
   @IsBoolean()
   autoPrint?: boolean
+
+  @IsOptional()
+  @IsString()
+  storeAddress?: string
+
+  @IsOptional()
+  @IsString()
+  paperWidth?: string
+
+  @IsOptional()
+  @IsString()
+  receiptFooter?: string
 }

@@ -155,6 +155,9 @@ model Setting {
   taxPercentage Decimal  @default(11) @map("tax_percentage") @db.Decimal(5, 2)
   printerName   String?  @map("printer_name")
   autoPrint     Boolean  @default(false) @map("auto_print")
+  storeAddress  String?  @map("store_address")
+  paperWidth    String?  @default("80mm") @map("paper_width")
+  receiptFooter String?  @map("receipt_footer")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 

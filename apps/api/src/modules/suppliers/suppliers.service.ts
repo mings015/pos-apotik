@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CreateSupplierDto } from './dto/create-supplier.dto'
 import { UpdateSupplierDto } from './dto/update-supplier.dto'
@@ -45,6 +46,13 @@ export class SuppliersService {
 
   async remove(id: string) {
     await this.findOne(id)
-    return this.prisma.supplier.delete({ where: { id } })
+    try {
+      return await this.prisma.supplier.delete({ where: { id } })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && (error.code === 'P2003' || error.code === 'P2014')) {
+        throw new ConflictException('Supplier tidak dapat dihapus karena masih memiliki data terkait (produk atau pembelian)')
+      }
+      throw error
+    }
   }
 }

@@ -31,6 +31,17 @@
 <div class="space-y-6">
   <PageHeader title="Retur Pembelian" description="Daftar pengembalian barang ke supplier" />
 
+  <!-- Info cara membuat retur -->
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
+    <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="text-sm text-amber-800">
+      <p class="font-medium mb-1">Cara membuat retur pembelian</p>
+      <p class="text-amber-700">Buka halaman <a href="/purchases" class="font-medium underline hover:text-amber-900">Purchase Order</a>, pilih PO yang sudah diterima (status: Diterima), lalu scroll ke bagian "Retur Pembelian" di halaman detail PO untuk membuat retur.</p>
+    </div>
+  </div>
+
   <!-- Filter -->
   <div class="bg-white rounded-xl border border-gray-200 p-4">
     <div class="flex flex-wrap gap-2 items-end">

@@ -16,6 +16,9 @@ export const actions: Actions = {
       taxPercentage: Number(form.get('taxPercentage')),
       printerName: form.get('printerName') || undefined,
       autoPrint: form.get('autoPrint') === 'true',
+      storeAddress: form.get('storeAddress') || undefined,
+      paperWidth: form.get('paperWidth') || '80mm',
+      receiptFooter: form.get('receiptFooter') || undefined,
     }
 
     const res = await serverFetch<ApiResponse>('/settings', locals.accessToken, {

@@ -2,6 +2,9 @@
   import Sidebar from '$components/layout/Sidebar.svelte'
   import Header from '$components/layout/Header.svelte'
   import Toast from '$components/ui/Toast.svelte'
+  import type { LayoutData } from './$types'
+
+  export let data: LayoutData
 
   let collapsed = false
 
@@ -13,7 +16,7 @@
 <Toast />
 
 <div class="flex h-screen bg-gray-50 overflow-hidden">
-  <Sidebar bind:collapsed />
+  <Sidebar bind:collapsed storeName={data.storeName} />
 
   <div class="flex flex-col flex-1 min-w-0">
     <Header onToggleSidebar={toggleSidebar} />

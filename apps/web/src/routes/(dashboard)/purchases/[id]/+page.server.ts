@@ -1,7 +1,7 @@
 import type { PageServerLoad, Actions } from './$types'
 import type { ApiResponse, PurchaseOrderDto } from '@pharmapos/types'
 import { serverFetch } from '$api/server'
-import { redirect } from '@sveltejs/kit'
+import { redirect, fail } from '@sveltejs/kit'
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const res = await serverFetch<ApiResponse<PurchaseOrderDto>>(
@@ -27,7 +27,7 @@ export const actions: Actions = {
       locals.accessToken,
       { method: 'PATCH', body: JSON.stringify({ status, ...(notes ? { notes } : {}) }) },
     )
-    if (!res.success) return { error: res.message ?? 'Gagal memperbarui status' }
+    if (!res.success) return fail(400, { error: res.message ?? 'Gagal memperbarui status' })
     return { success: true, message: `Status berhasil diubah ke ${status}` }
   },
 
@@ -41,7 +41,7 @@ export const actions: Actions = {
     try {
       items = JSON.parse(itemsJson)
     } catch {
-      return { error: 'Data item tidak valid' }
+      return fail(400, { error: 'Data item tidak valid' })
     }
 
     const res = await serverFetch<ApiResponse<unknown>>(
@@ -49,7 +49,7 @@ export const actions: Actions = {
       locals.accessToken,
       { method: 'POST', body: JSON.stringify({ purchaseOrderId, items, notes }) },
     )
-    if (!res.success) return { error: res.message ?? 'Gagal menerima barang' }
+    if (!res.success) return fail(400, { error: res.message ?? 'Gagal menerima barang' })
     return { success: true, message: 'Barang berhasil diterima dan stok diperbarui' }
   },
 
@@ -61,15 +61,15 @@ export const actions: Actions = {
     const paymentDate = fd.get('paymentDate') as string
     const notes = fd.get('notes') as string | null
 
-    if (!invoiceId) return { error: 'ID invoice tidak ditemukan' }
-    if (!amount || amount <= 0) return { error: 'Jumlah pembayaran harus lebih dari 0' }
+    if (!invoiceId) return fail(400, { error: 'ID invoice tidak ditemukan' })
+    if (!amount || amount <= 0) return fail(400, { error: 'Jumlah pembayaran harus lebih dari 0' })
 
     const res = await serverFetch<ApiResponse<unknown>>(
       `/supplier-invoices/${invoiceId}/payment`,
       locals.accessToken,
       { method: 'PATCH', body: JSON.stringify({ amount, paymentMethod, paymentDate, notes }) },
     )
-    if (!res.success) return { error: (res as any).message ?? 'Gagal mencatat pembayaran' }
+    if (!res.success) return fail(400, { error: (res as any).message ?? 'Gagal mencatat pembayaran' })
     return { success: true, message: 'Pembayaran berhasil dicatat' }
   },
 
@@ -80,23 +80,23 @@ export const actions: Actions = {
     const notes = fd.get('notes') as string | null
     const itemsJson = fd.get('items') as string
 
-    if (!reason?.trim()) return { error: 'Alasan retur wajib diisi' }
+    if (!reason?.trim()) return fail(400, { error: 'Alasan retur wajib diisi' })
 
     let items: Array<{ productId: string; batchId: string; quantity: number }> = []
     try {
       items = JSON.parse(itemsJson)
     } catch {
-      return { error: 'Data item tidak valid' }
+      return fail(400, { error: 'Data item tidak valid' })
     }
 
-    if (items.length === 0) return { error: 'Pilih minimal satu item untuk diretur' }
+    if (items.length === 0) return fail(400, { error: 'Pilih minimal satu item untuk diretur' })
 
     const res = await serverFetch<ApiResponse<unknown>>(
       '/purchase-returns',
       locals.accessToken,
       { method: 'POST', body: JSON.stringify({ supplierInvoiceId, reason, notes, items }) },
     )
-    if (!res.success) return { error: (res as any).message ?? 'Gagal membuat retur pembelian' }
+    if (!res.success) return fail(400, { error: (res as any).message ?? 'Gagal membuat retur pembelian' })
     return { success: true, message: 'Retur pembelian berhasil dibuat' }
   },
 }

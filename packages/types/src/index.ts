@@ -150,6 +150,9 @@ export interface SettingDto {
   taxPercentage: number
   printerName: string | null
   autoPrint: boolean
+  storeAddress: string | null
+  paperWidth: string | null
+  receiptFooter: string | null
   updatedAt: Date
 }
 

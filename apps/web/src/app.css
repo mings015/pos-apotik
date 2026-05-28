@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media print {
+  .no-print { display: none !important; }
+  .print-header { display: block !important; }
+  aside, header { display: none !important; }
+  main { padding: 0 !important; overflow: visible !important; }
+  body { font-size: 12px; }
+  table { font-size: 11px; border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ccc; padding: 4px 8px; }
+  * { box-shadow: none !important; overflow: visible !important; }
+  .flex.h-screen { height: auto !important; overflow: visible !important; }
+}

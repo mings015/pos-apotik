@@ -22,6 +22,7 @@
   let showStatusConfirm = false
   let pendingStatus = ''
   let statusLoading = false
+  let statusFormEl: HTMLFormElement
   let receiveLoading = false
   let paymentLoading = false
   let returnLoading = false
@@ -541,21 +542,23 @@
   {/if}
 </div>
 
-<!-- Status Confirm Dialog -->
+<form method="POST" action="?/updateStatus" class="hidden"
+  use:enhance={() => {
+    statusLoading = true
+    return async ({ result, update }) => {
+      await update()
+      statusLoading = false
+    }
+  }}
+  bind:this={statusFormEl}>
+  <input type="hidden" name="status" bind:value={pendingStatus} />
+</form>
+
 <ConfirmDialog
   bind:open={showStatusConfirm}
   title="Ubah Status PO"
   message="Ubah status PO {po.poNumber} menjadi {pendingStatus === 'PENDING' ? 'Menunggu' : pendingStatus === 'APPROVED' ? 'Disetujui' : 'Dibatalkan'}?"
   confirmLabel="Ya, Ubah"
   loading={statusLoading}
-  on:confirm={async () => {
-    statusLoading = true
-    const fd = new FormData()
-    fd.set('status', pendingStatus)
-    const res = await fetch('?/updateStatus', { method: 'POST', body: fd })
-    const result = await res.json()
-    statusLoading = false; showStatusConfirm = false
-    if (result.type === 'success') { toast.success(`Status berhasil diubah`); await invalidateAll() }
-    else toast.error('Gagal mengubah status')
-  }}
+  on:confirm={() => statusFormEl.requestSubmit()}
 />

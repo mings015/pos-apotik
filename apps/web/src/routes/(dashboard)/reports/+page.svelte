@@ -1,0 +1,1 @@
+<!-- redirects to /reports/sales -->

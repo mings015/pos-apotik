@@ -8,7 +8,7 @@ const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 const routeRoles: Array<{ prefix: string; roles: string[] }> = [
   { prefix: '/sales', roles: ['SUPER_ADMIN', 'ADMIN', 'CASHIER'] },
   { prefix: '/purchases', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
-  { prefix: '/supplier-invoices', roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { prefix: '/supplier-invoices', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
   { prefix: '/purchase-returns', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
   { prefix: '/reports', roles: ['SUPER_ADMIN', 'ADMIN'] },
   { prefix: '/inventory', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
@@ -17,7 +17,7 @@ const routeRoles: Array<{ prefix: string; roles: string[] }> = [
   { prefix: '/categories', roles: ['SUPER_ADMIN', 'ADMIN'] },
   { prefix: '/suppliers', roles: ['SUPER_ADMIN', 'ADMIN'] },
   { prefix: '/units', roles: ['SUPER_ADMIN', 'ADMIN'] },
-  { prefix: '/users', roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { prefix: '/users', roles: ['SUPER_ADMIN'] },
   { prefix: '/roles', roles: ['SUPER_ADMIN'] },
   { prefix: '/settings', roles: ['SUPER_ADMIN'] },
 ]

@@ -19,12 +19,30 @@
   let showConfirm = false
   let formLoading = false
   let deleteLoading = false
+  let deleteForm: HTMLFormElement
   let search = ''
 
   type FormResult = { success?: boolean; message?: string; error?: string } | null
   $: f = form as FormResult
   $: if (f?.success) { toast.success(f.message ?? 'Berhasil'); showForm = false; editItem = null }
   $: if (f?.error) toast.error(f.error ?? 'Terjadi kesalahan')
+
+  function handleDeleteEnhance() {
+    deleteLoading = true
+    return async ({ result }: { result: import('@sveltejs/kit').ActionResult }) => {
+      deleteLoading = false
+      showConfirm = false
+      if (result.type === 'success') {
+        toast.success('Supplier berhasil dihapus')
+        await invalidateAll()
+      } else if (result.type === 'failure') {
+        const data = result.data as Record<string, string> | undefined
+        toast.error(data?.error ?? 'Gagal menghapus supplier')
+      } else {
+        toast.error('Gagal menghapus supplier')
+      }
+    }
+  }
 </script>
 
 <svelte:head><title>Supplier — PharmaPOS</title></svelte:head>
@@ -139,15 +157,11 @@
   </div>
 {/if}
 
+<form method="POST" action="?/delete" use:enhance={handleDeleteEnhance} bind:this={deleteForm} class="hidden">
+  <input type="hidden" name="id" bind:value={deleteId} />
+</form>
+
 <ConfirmDialog bind:open={showConfirm} title="Hapus Supplier" message="Apakah Anda yakin ingin menghapus supplier ini?"
   confirmLabel="Ya, Hapus" loading={deleteLoading}
-  on:confirm={async () => {
-    deleteLoading = true
-    const fd = new FormData(); fd.set('id', deleteId)
-    const res = await fetch('?/delete', { method: 'POST', body: fd })
-    const result = await res.json()
-    deleteLoading = false; showConfirm = false
-    if (result.type === 'success') { toast.success('Supplier berhasil dihapus'); await invalidateAll() }
-    else toast.error('Gagal menghapus supplier')
-  }}
+  on:confirm={() => deleteForm.requestSubmit()}
 />

@@ -4,6 +4,7 @@
   import { currentUser } from '$stores/auth'
 
   export let collapsed = false
+  export let storeName = 'PharmaPOS'
 
   let isMobile = false
 
@@ -30,7 +31,7 @@
     { type: 'category', label: 'Transaksi' },
     { href: '/sales', label: 'Penjualan', icon: 'shopping-cart', roles: ['SUPER_ADMIN', 'ADMIN', 'CASHIER'] },
     { href: '/purchases', label: 'Pembelian', icon: 'truck', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
-    { href: '/supplier-invoices', label: 'Invoice Supplier', icon: 'file-text', roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { href: '/supplier-invoices', label: 'Invoice Supplier', icon: 'file-text', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
     { href: '/purchase-returns', label: 'Retur Pembelian', icon: 'corner-up-left', roles: ['SUPER_ADMIN', 'ADMIN', 'WAREHOUSE'] },
     { href: '/reports', label: 'Laporan', icon: 'bar-chart', roles: ['SUPER_ADMIN', 'ADMIN'] },
     { type: 'category', label: 'Inventaris' },
@@ -43,15 +44,24 @@
     { href: '/suppliers', label: 'Supplier', icon: 'building', roles: ['SUPER_ADMIN', 'ADMIN'] },
     { href: '/units', label: 'Satuan', icon: 'ruler', roles: ['SUPER_ADMIN', 'ADMIN'] },
     { type: 'category', label: 'Manajemen' },
-    { href: '/users', label: 'Pengguna', icon: 'users', roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { href: '/users', label: 'Pengguna', icon: 'users', roles: ['SUPER_ADMIN'] },
     { href: '/roles', label: 'Role', icon: 'shield', roles: ['SUPER_ADMIN'] },
     { href: '/settings', label: 'Pengaturan', icon: 'settings', roles: ['SUPER_ADMIN'] },
   ]
 
   $: userRole = $currentUser?.role?.name
-  $: filteredMenu = menuItems.filter(
-    (item) => item.type === 'category' || !item.roles || (userRole && item.roles.includes(userRole))
+  $: visibleItems = menuItems.filter(
+    (item) => item.type !== 'category' && (!item.roles || (userRole && item.roles.includes(userRole)))
   )
+  $: filteredMenu = menuItems.filter((item) => {
+    if (item.type !== 'category') return !item.roles || (userRole && item.roles.includes(userRole))
+    // hide category if no items follow it before the next category
+    const catIdx = menuItems.indexOf(item)
+    return menuItems.slice(catIdx + 1).some((m) => {
+      if (m.type === 'category') return false
+      return !m.roles || (userRole && m.roles.includes(userRole))
+    })
+  })
 
   const icons: Record<string, string> = {
     grid: 'M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z',
@@ -96,7 +106,7 @@
       </svg>
     </div>
     {#if !collapsed || isMobile}
-      <span class="font-bold text-gray-900 text-sm">PharmaPOS</span>
+      <span class="font-bold text-gray-900 text-sm truncate">{storeName}</span>
     {/if}
     {#if isMobile}
       <button on:click={() => collapsed = true} class="ml-auto p-1.5 rounded-lg text-gray-400 hover:bg-gray-100" aria-label="Tutup sidebar">

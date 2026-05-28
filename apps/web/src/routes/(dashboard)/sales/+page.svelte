@@ -162,6 +162,7 @@
         receipt = res.data as SaleReceipt
         showPayment = false
         showMobileCart = false
+        if (data.autoPrint) setTimeout(() => printReceipt(), 100)
       }
       cart.clear()
       cartDiscount = 0
@@ -194,6 +195,10 @@
   // ── Print ─────────────────────────────────────────────────────────────────────
   function printReceipt() {
     if (!receipt) return
+    const paperWidth = (data as any).paperWidth ?? '80mm'
+    const storeAddress = (data as any).storeAddress ?? ''
+    const receiptFooter = (data as any).receiptFooter ?? 'Terima kasih sudah berbelanja!'
+
     const date = new Intl.DateTimeFormat('id-ID', {
       weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
@@ -211,45 +216,57 @@
          <div class="row bold"><span>Kembali</span><span>${formatRp(Number(receipt.change))}</span></div>`
       : `<div class="row"><span>Metode Bayar</span><span>Transfer</span></div>`
 
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>Struk ${receipt.invoiceNumber}</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Courier New',Courier,monospace;font-size:11.5px;width:80mm;padding:4mm 5mm;line-height:1.6;color:#000}
-  .center{text-align:center}
-  .bold{font-weight:bold}
-  .store-name{font-size:16px;font-weight:bold;letter-spacing:0.5px}
-  .sep-dash{border:none;border-top:1px dashed #000;margin:5px 0}
-  .sep-solid{border:none;border-top:1px solid #000;margin:5px 0}
-  .row{display:flex;justify-content:space-between;align-items:flex-start}
-  .item-name{font-weight:bold;margin-top:4px}
-  .item-row{font-size:11px;color:#333}
-  .total-row{display:flex;justify-content:space-between;font-weight:bold;font-size:14px;padding:3px 0}
-  .meta{font-size:10.5px;color:#444}
-  @page{size:80mm auto;margin:0}
-</style></head>
-<body>
-  <div class="center store-name">${data.storeName}</div>
-  <div class="center meta">Apotek &mdash; Struk Pembelian</div>
-  <hr class="sep-dash">
-  <div class="meta">No. Faktur : <strong>${receipt.invoiceNumber}</strong></div>
-  <div class="meta">Tanggal   : ${date}</div>
-  <div class="meta">Kasir     : ${receipt.cashier?.name ?? '-'}</div>
-  <hr class="sep-dash">
-  ${itemsHtml}
-  <hr class="sep-dash">
-  <div class="row"><span>Subtotal</span><span>${formatRp(Number(receipt.subtotal))}</span></div>
-  ${Number(receipt.discount) > 0 ? `<div class="row"><span>Diskon</span><span>-${formatRp(Number(receipt.discount))}</span></div>` : ''}
-  ${Number(receipt.tax) > 0 ? `<div class="row meta"><span>Pajak</span><span>${formatRp(Number(receipt.tax))}</span></div>` : ''}
-  <hr class="sep-solid">
-  <div class="total-row"><span>TOTAL</span><span>${formatRp(Number(receipt.total))}</span></div>
-  <hr class="sep-solid">
-  ${payHtml}
-  <hr class="sep-dash">
-  <div class="center" style="margin-top:6px;font-size:11px">Terima kasih sudah berbelanja!</div>
-  <div class="center" style="font-size:11px">Semoga lekas sembuh :)</div>
-  <div style="margin-top:10px"></div>
-</body></html>`
+    const addressHtml = storeAddress
+      ? `<div class="center meta">${storeAddress.replace(/\n/g, '<br>')}</div>`
+      : ''
+
+    const receiptCss = [
+      '*{margin:0;padding:0;box-sizing:border-box}',
+      `body{font-family:'Courier New',Courier,monospace;font-size:11.5px;width:${paperWidth};padding:4mm 4mm;line-height:1.6;color:#000}`,
+      '.center{text-align:center}',
+      '.bold{font-weight:bold}',
+      '.store-name{font-size:15px;font-weight:bold;letter-spacing:0.5px}',
+      '.sep-dash{border:none;border-top:1px dashed #000;margin:5px 0}',
+      '.sep-solid{border:none;border-top:1px solid #000;margin:5px 0}',
+      '.row{display:flex;justify-content:space-between;align-items:flex-start}',
+      '.item-name{font-weight:bold;margin-top:4px}',
+      '.item-row{font-size:11px;color:#333}',
+      '.total-row{display:flex;justify-content:space-between;font-weight:bold;font-size:13px;padding:3px 0}',
+      '.meta{font-size:10.5px;color:#444}',
+      '.footer{font-size:11px;text-align:center;margin-top:6px}',
+      `@page{size:${paperWidth} auto;margin:0}`,
+    ].join(' ')
+
+    const discountRow = Number(receipt.discount) > 0
+      ? `<div class="row"><span>Diskon</span><span>-${formatRp(Number(receipt.discount))}</span></div>` : ''
+    const taxRow = Number(receipt.tax) > 0
+      ? `<div class="row meta"><span>Pajak</span><span>${formatRp(Number(receipt.tax))}</span></div>` : ''
+
+    const html = '<!DOCTYPE html>' +
+      `<html><head><meta charset="UTF-8"><title>Struk ${receipt.invoiceNumber}</title>` +
+      '<style>' + receiptCss + '</style></head>' +
+      '<body>' +
+      `<div class="center store-name">${data.storeName}</div>` +
+      addressHtml +
+      '<div class="center meta">Apotek &mdash; Struk Pembelian</div>' +
+      '<hr class="sep-dash">' +
+      `<div class="meta">No. Faktur : <strong>${receipt.invoiceNumber}</strong></div>` +
+      `<div class="meta">Tanggal   : ${date}</div>` +
+      `<div class="meta">Kasir     : ${receipt.cashier?.name ?? '-'}</div>` +
+      '<hr class="sep-dash">' +
+      itemsHtml +
+      '<hr class="sep-dash">' +
+      `<div class="row"><span>Subtotal</span><span>${formatRp(Number(receipt.subtotal))}</span></div>` +
+      discountRow + taxRow +
+      '<hr class="sep-solid">' +
+      `<div class="total-row"><span>TOTAL</span><span>${formatRp(Number(receipt.total))}</span></div>` +
+      '<hr class="sep-solid">' +
+      payHtml +
+      '<hr class="sep-dash">' +
+      `<div class="footer">${receiptFooter}</div>` +
+      '<div class="footer" style="color:#666">Semoga lekas sembuh :)</div>' +
+      '<div style="margin-top:12px"></div>' +
+      '</body></html>'
 
     const blob = new Blob([html], { type: 'text/html; charset=utf-8' })
     const url = URL.createObjectURL(blob)

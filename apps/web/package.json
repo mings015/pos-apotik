@@ -14,7 +14,8 @@
   "dependencies": {
     "@tanstack/svelte-query": "^5.62.0",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.0"
+    "tailwind-merge": "^2.5.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.2.0",

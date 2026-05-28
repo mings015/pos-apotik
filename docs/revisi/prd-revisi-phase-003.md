@@ -18,3 +18,12 @@
 - Nama Toko belum berfungsi
 - fungsikan juga config untuk printer, saya nantinya akan menggunakan printer thermal untuk cetak struk
 -
+
+- laporan penjualan tidak bisa di download pdf
+- hapus data supplier tidak bisa
+- pada halaman supplier jika saya hapus salah satu data, maka data supplier yang lain terhapus juga
+
+super admin : semua fitur
+Admin : semua fitur kecuali semua ada pada bagian manajemen
+kasir : hanya bisa penjualan dan melihat data produk tidak bisa mengubah data produk
+Gudang : hanya bisa inventaris dan pembelian, invoice supplier, retur pembelian, dan semua pada bagian inventaris

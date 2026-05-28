@@ -19,6 +19,8 @@ import { PurchasesModule } from './modules/purchases/purchases.module'
 import { GoodsReceivingModule } from './modules/goods-receiving/goods-receiving.module'
 import { SupplierInvoicesModule } from './modules/supplier-invoices/supplier-invoices.module'
 import { PurchaseReturnsModule } from './modules/purchase-returns/purchase-returns.module'
+import { AnalyticsModule } from './modules/analytics/analytics.module'
+import { ReportsModule } from './modules/reports/reports.module'
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { PurchaseReturnsModule } from './modules/purchase-returns/purchase-retur
     GoodsReceivingModule,
     SupplierInvoicesModule,
     PurchaseReturnsModule,
+    AnalyticsModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

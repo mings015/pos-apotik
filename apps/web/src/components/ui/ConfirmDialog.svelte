@@ -11,7 +11,7 @@
 
   const dispatch = createEventDispatcher<{ confirm: void; cancel: void }>()
 
-  function confirm() { dispatch('confirm') }
+  function confirm() { open = false; dispatch('confirm') }
   function cancel() { open = false; dispatch('cancel') }
 
   const confirmStyles = {
