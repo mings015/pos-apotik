@@ -18,7 +18,7 @@ export const actions: Actions = {
       }
     }
 
-    cookies.delete('accessToken', { path: '/' })
+    cookies.delete('accessToken', { path: '/', sameSite: 'none', secure: true })
     redirect(302, '/login')
   },
 }

@@ -56,7 +56,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     } else {
       event.locals.user = null
       event.locals.accessToken = null
-      event.cookies.delete('accessToken', { path: '/' })
+      event.cookies.delete('accessToken', { path: '/', sameSite: 'none', secure: true })
     }
   } else {
     event.locals.user = null

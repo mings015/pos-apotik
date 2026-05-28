@@ -34,7 +34,8 @@ export const actions: Actions = {
       cookies.set('accessToken', data.data.accessToken, {
         path: '/',
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'none',
+        secure: true,
         maxAge: 60 * 15, // 15 menit
       })
     } catch {
