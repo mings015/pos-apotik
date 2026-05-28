@@ -48,7 +48,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         email: payload.email,
         roleId: '',
         isActive: true,
-        role: { id: '', name: payload.role, createdAt: new Date(), updatedAt: new Date() },
+        role: { id: '', name: payload.role as import('@pharmapos/types').RoleName, createdAt: new Date(), updatedAt: new Date() },
         createdAt: new Date(),
         updatedAt: new Date(),
       }
