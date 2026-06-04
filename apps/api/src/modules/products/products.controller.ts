@@ -10,6 +10,7 @@ import { ProductsService } from './products.service'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
 import { QueryProductDto } from './dto/query-product.dto'
+import { ImportProductsDto } from './dto/import-product.dto'
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 import { RolesGuard } from '../../common/guards/roles.guard'
 import { Roles } from '../../common/decorators/roles.decorator'
@@ -57,6 +58,13 @@ export class ProductsController {
   ) {
     const data = await this.productsService.update(id, dto, file?.filename)
     return { success: true, message: 'Produk berhasil diperbarui', data }
+  }
+
+  @Post('import')
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  async importProducts(@Body() dto: ImportProductsDto) {
+    const data = await this.productsService.importProducts(dto)
+    return { success: true, message: `${data.created} produk berhasil diimport`, data }
   }
 
   @Delete(':id')
