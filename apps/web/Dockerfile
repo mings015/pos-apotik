@@ -12,8 +12,8 @@ RUN cd apps/web && npm install
 # Copy web source
 COPY apps/web ./apps/web
 
-# Build
-RUN cd apps/web && npm run build
+# Build (sync generates .svelte-kit/tsconfig.json first)
+RUN cd apps/web && npx svelte-kit sync && npm run build
 
 # ── Stage 2: Production ────────────────────────────────────────────────────────
 FROM node:22-alpine
