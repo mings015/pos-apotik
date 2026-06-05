@@ -1,0 +1,14 @@
+node_modules
+apps/api/node_modules
+apps/api/dist
+apps/api/.env
+apps/api/.env.local
+apps/api/uploads
+apps/web/node_modules
+apps/web/build
+apps/web/.svelte-kit
+apps/web/.env
+.git
+*.md
+docker-compose*.yml
+nginx

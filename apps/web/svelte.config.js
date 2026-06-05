@@ -1,16 +1,18 @@
-import adapter from '@sveltejs/adapter-vercel'
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
+import adapter from "@sveltejs/adapter-vercel";
+// import adapterNode from '@sveltejs/adapter-node'
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter(),
+    // adapter: adapterNode(),
     alias: {
-      $components: 'src/components',
-      $stores: 'src/lib/stores',
-      $api: 'src/lib/api',
-      '@pharmapos/types': '../../packages/types/src/index.ts',
+      $components: "src/components",
+      $stores: "src/lib/stores",
+      $api: "src/lib/api",
+      "@pharmapos/types": "../../packages/types/src/index.ts",
     },
   },
-}
+};
